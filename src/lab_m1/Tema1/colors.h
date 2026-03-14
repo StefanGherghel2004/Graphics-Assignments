@@ -1,0 +1,59 @@
+#pragma once
+
+// definirea unor culori folosite
+
+#define RED    glm::vec3(1.0f, 0.0f, 0.0f)
+#define RED09  glm::vec3(0.9f, 0.0f, 0.0f)
+#define RED08  glm::vec3(0.8f, 0.0f, 0.0f)
+#define RED07  glm::vec3(0.7f, 0.0f, 0.0f)
+#define RED06  glm::vec3(0.6f, 0.0f, 0.0f)
+#define RED05  glm::vec3(0.5f, 0.0f, 0.0f)
+#define RED04  glm::vec3(0.4f, 0.0f, 0.0f)
+
+#define GREEN	glm::vec3(0.0f, 1.0f, 0.0f)
+#define GREEN09  glm::vec3(0.0f, 0.9f, 0.0f)
+#define GREEN08  glm::vec3(0.0f, 0.8f, 0.0f)
+#define GREEN07  glm::vec3(0.0f, 0.7f, 0.0f)
+#define GREEN06  glm::vec3(0.0f, 0.6f, 0.0f)
+#define GREEN05  glm::vec3(0.0f, 0.5f, 0.0f)
+#define GREEN04  glm::vec3(0.0f, 0.4f, 0.0f)
+#define GREEN03  glm::vec3(0.0f, 0.3f, 0.0f)
+#define GREEN02  glm::vec3(0.0f, 0.2f, 0.0f)
+
+
+
+
+#define BLUE   glm::vec3(0.0f, 0.0f, 1.0f)
+#define BLUE09   glm::vec3(0.0f, 0.0f, 0.9f)
+#define BLUE08   glm::vec3(0.0f, 0.0f, 0.8f)
+#define BLUE07   glm::vec3(0.0f, 0.0f, 0.7f)
+#define BLUE06   glm::vec3(0.0f, 0.0f, 0.6f)
+#define BLUE05   glm::vec3(0.0f, 0.0f, 0.5f)
+
+#define CYAN glm::vec3(0.0f, 0.2f, 1.0f)
+
+#define WHITE  glm::vec3(1.0f, 1.0f, 1.0f)
+#define BLACK  glm::vec3(0.0f, 0.0f, 0.0f)
+#define YELLOW glm::vec3(1.0f, 1.0f, 0.0f)
+#define ORANGE glm::vec3(1.0f, 0.5f, 0.0f)
+#define ORANGE1 glm::vec3(0.96f, 0.345f, 0.082f)
+#define ORANGE2 glm::vec3(0.96f, 0.7f, 0.082f)
+
+
+#define BROWN	   glm::vec3(0.6f, 0.3f, 0.0f)
+#define DARK_BROWN glm::vec3(0.5f, 0.23f, 0.0f)
+#define DARKER_BROWN glm::vec3(0.3f, 0.1f, 0.0f)
+#define WATER	   glm::vec3(0.0f, 0.5f, 1.0f)
+#define GOLD	   glm::vec3(0.96f, 0.784f, 0.082f)
+
+
+#define GREY_01 glm::vec3(0.1f, 0.1f, 0.1f)
+#define GREY_02 glm::vec3(0.2f, 0.2f, 0.2f)
+#define GREY_03 glm::vec3(0.3f, 0.3f, 0.3f)
+#define GREY_04 glm::vec3(0.4f, 0.4f, 0.4f)
+#define GREY_05 glm::vec3(0.5f, 0.5f, 0.5f)
+#define GREY_06 glm::vec3(0.6f, 0.6f, 0.6f)
+#define GREY_07 glm::vec3(0.7f, 0.7f, 0.7f)
+#define GREY_08 glm::vec3(0.8f, 0.8f, 0.8f)
+#define GREY_09 glm::vec3(0.9f, 0.9f, 0.9f)
+#define GREY_099 glm::vec3(0.99f, 0.99f, 0.99f)

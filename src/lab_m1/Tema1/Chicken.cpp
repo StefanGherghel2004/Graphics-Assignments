@@ -13,7 +13,9 @@ Chicken::Chicken(glm::vec2 position, float radius, float speed, float period, st
 		: centerPosition(position), hitBoxRadius(radius), eggSpeed(speed), eggType("egg"), eggPeriod(period), chickType("chickenBody"), headType("chickenHead"), wingsType("chickenWing"), legType("chickenLeg")
 {
     eggTimer = static_cast<float>(rand()) / RAND_MAX * eggPeriod;
-    // generarea unei gaini cu o anumita probabilitate. Aceasta gaina va lansa oua la un interval mai mare dar ouale o sa fie mai rapide si cu o anumita proprietate
+    // Spawning a chicken with a certain probability.
+    // This chicken will lay eggs at a longer interval, but the eggs will be faster
+    // and have a certain property.
 
     if (rand() % 30 == 0) {
         chickType = "chickenBodyRed";
@@ -37,7 +39,7 @@ void Chicken::LayEgg(float deltaTime, std::vector<InteractObj>& eggs)
         eggTimer = 0;
     }
 
-    // ouale de aur se spawneaza mai rar pentru ca ofera un beneficiu
+    // golden eggs spawn less often because they offer a benefit
     if (eggType == "eggGold" && eggTimer > eggPeriod * 1.2) {
         eggs.push_back({ centerPosition, glm::vec2(10, 16), glm::vec2(0), eggType, 0 });
         eggTimer = 0;

@@ -59,42 +59,39 @@ void Tema1::Init()
     resizeFactorX = 1;
     resizeFactorY = 1;
 
-    // unde se face randarea obiectului luat cu drag
+	// used for rendering the block being dragged by the mouse
     mouseSel = false;
     mousePosX = 0;
     mousePosY = 0;
 
     blocksGrid = new Grid(row, col, unitLen, glm::vec2(500, 100), "square1");
 
-    // patratelul din grid
+    // grid square
     Mesh* square1 = mesh::CreateSquare("square1", corner, 0.75 * unitLen, glm::vec3(0.67, 0.8, 1), true);
     AddMeshToList(square1);
 
-    // patratelul din grid hovered
+    // hovered grid square
     Mesh* squareGridHover = mesh::CreateSquare("squareGridHover", corner, 0.75 * unitLen, glm::vec3(0.3, 0.4, 0.7), true);
     AddMeshToList(squareGridHover);
 
-    // patratele ce arata nr de blocuri ramase de plasat
+	// squares for the remaining elements to be placed in the ship
     Mesh* square2 = mesh::CreateSquare("square2", remainingElementsPos, 1.35 * unitLen, GREEN, true);
     AddMeshToList(square2);
 
-    // blocul de selectat tip bloc simplu
+    // simple block in the ship
     Mesh* squareBlock = mesh::CreateSquareBlock("squareBlock", corner + glm::vec3(0, 0, 40), unitLen, GREY_08, GREY_05);
     AddMeshToList(squareBlock);
 
-    // blocul de selectat tip motor
     Mesh* engine = mesh::CreateEngine("engine", corner + glm::vec3(0, 0, 40), unitLen, ORANGE, glm::vec3(0.8, 0.2, 0), RED);
     AddMeshToList(engine);
 
-    // blocul de selectat tip tun
     Mesh* cannon = mesh::CreateCannon("cannon", corner + glm::vec3(0, 0, 40), unitLen, GREY_05, GREY_07, GREY_02);
     AddMeshToList(cannon);
 
-    // blocul de selectat tip tun
     Mesh* bumper = mesh::CreateBumper("bumper", corner + glm::vec3(0, 0, 40), unitLen, GREY_08, glm::vec3(0.8, 0.8, 0));
     AddMeshToList(bumper);
 
-    // stadiile diferite de degradare ale bumper-ului
+    // different stages of the bumper 
     Mesh* bumper1 = mesh::CreateBumper("bumper1", corner + glm::vec3(0, 0, 40), unitLen, GREY_06, glm::vec3(0.6, 0.6, 0));
     AddMeshToList(bumper1);
 
@@ -104,18 +101,18 @@ void Tema1::Init()
     Mesh* bumper3 = mesh::CreateBumper("bumper3", corner + glm::vec3(0, 0, 40), unitLen, GREY_02, glm::vec3(0.2, 0.2, 0));
     AddMeshToList(bumper3);
 
-    // conturul rosu in jurul blocurilor de selectat
+    // red outline around the blocks to select
     Mesh* componentSelect = mesh::CreateRectangle("componentSelect", corner, logicSpace.width / 4, logicSpace.height / 4, RED);
     AddMeshToList(componentSelect);
 
     Mesh* componentSelectHover = mesh::CreateRectangle("componentSelectHover", corner - glm::vec3(0, 0, 5), logicSpace.width / 4, logicSpace.height / 4, glm::vec3(0.3, 0, 0), true);
     AddMeshToList(componentSelectHover);
 
-    // buton start rosu
+    // red start button
     Mesh* startButtonRed = mesh::CreateStartButton("startButtonRed", start, 2 * unitLen, RED, true);
     AddMeshToList(startButtonRed);
 
-    // buton start verde
+    // green start button
     Mesh* startButtonGreen = mesh::CreateStartButton("startButtonGreen", start, 2 * unitLen, GREEN, true);
     AddMeshToList(startButtonGreen);
 
@@ -141,7 +138,7 @@ void Tema1::Init()
     Mesh* maskRectangle2 = mesh::CreateRectangle("mask2", glm::vec3(-100, 0, 44), 100, 720, BLACK, true);
     AddMeshToList(maskRectangle2);
 
-    // pozitiile butoanelor in meniul de return
+    // the button positions in the return menu
     returnWithClear = { glm::vec2(240, 200), glm::vec2(320, 180), glm::vec2(0,0), "gameMenuButton", 0};
     returnButton = { glm::vec2(720, 200), glm::vec2(320, 180), glm::vec2(0,0), "gameMenuButton", 0 };
 

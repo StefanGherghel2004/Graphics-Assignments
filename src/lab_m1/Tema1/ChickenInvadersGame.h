@@ -80,7 +80,7 @@ protected:
 
      vector<InteractObj> player;
      
-     // folosite ca sa blocheze jucatorul in fereastra
+	 // used for blocking the player inside the window
      InteractObj* bottomBlock;
      InteractObj* leftBlock;
      InteractObj* rightBlock;

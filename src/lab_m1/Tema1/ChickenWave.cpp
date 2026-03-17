@@ -15,7 +15,7 @@ float ChickenWave::baseNumfullRows = 0;
 ChickenWave::ChickenWave(float formationTime, bool initPos)
 		   : formationTime(formationTime), formationEnd(false), formationTimer(0), movingDir(1), radians(0)
 {
-	// actualizarea valorilor la fiecare wave nou creat
+	// updating the parameters of the wave based on the static values that increase with each wave
 	chickenSpeed = baseChickenSpeed;
 	baseChickenSpeed += 2;
 
@@ -27,8 +27,7 @@ ChickenWave::ChickenWave(float formationTime, bool initPos)
 
 	numRows = (int)baseNumRows;
 
-
-	// functionalitate folosita pentru a genera coloane intregi de pui dupa formarea piramidei 
+	// generate full rows of chickens that appear after the pyramid is formed
 	if (baseNumRows < 6) {
 		baseNumRows += 0.5;
 	}
@@ -59,7 +58,7 @@ void ChickenWave::WaveForming(float deltaTime)
 
 	formationTimer += deltaTime;
 
-	// miscarea pana in pozitia de inceput
+	// moving in formation
 	for (auto& chicken : chickens) {
 		chicken->UpdatePos(glm::vec2(0, - 1.2 * chickenSpeed * deltaTime));
 	}
@@ -88,7 +87,7 @@ void ChickenWave::FormationMove(float deltaTime)
 		radians = glm::pi<float>() / 2.0f;
 	}
 
-	// 0.8 secunde in care stau pe loc gainile inainte sa si inceapa miscarea sinusoidala
+	// .8 seconds where the chickens stay still before starting the sinusoidal movement
 	if (formationTimer < 0.8) {
 		formationTimer += deltaTime;
 		return;
@@ -113,14 +112,14 @@ void ChickenWave::FormationInitPos(float logicWidth, float logicHeight)
 
 	float startY = logicHeight + 1.15 * marginY;
 
-	// formatia sa inceapa mai de sus cu trecerea valurilor
+	// the formation starts higher with each wave
 	if (numRows >= 6) {
 		startY += ((float) (numfullRows + 1) / 3) * 2.3 * rowSpacing;
 	}
 
 	float chickenWidth = 25.0f;
 
-	// piramida de gaini care creste de la val la val
+	// chicken pyramid
 	for (int row = 0; row < numRows; row++) {
 		for (int col = 0; col < numCols - row; col++) {
 			float x = marginX + col * colSpacing + row * (colSpacing * 0.5f);
@@ -130,8 +129,7 @@ void ChickenWave::FormationInitPos(float logicWidth, float logicHeight)
 		}
 	}
 
-	// randuri de gate 8 gaini distantate de piramida care apar cand numRows >= 6
-
+	// rows of 8 chickens distanced from the pyramid that appear when numRows >= 6
 	if (numRows >= 6) {
 
 		float offset = startY + (numfullRows + 1) * rowSpacing;
@@ -150,7 +148,7 @@ void ChickenWave::FormationInitPos(float logicWidth, float logicHeight)
 
 void ChickenWave::ResetBaseValues()
 {
-	// resetarea valorilor initiale
+	// resetting the base values that increase with each wave to the initial values for the next game
 	baseChickenSpeed = 40;
 	baseNumRows = 2;
 	baseEggSpeed = 300;

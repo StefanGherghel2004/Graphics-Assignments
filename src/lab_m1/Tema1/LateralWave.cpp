@@ -87,10 +87,8 @@ void LateralWave::FormationInitPos(float logicWidth, float logicHeigth)
 
     float gap = 1.57 / 2.0f;
 
-
-    // in functie de numRows / 3 + 1 + numFullRows vom avea un numar in crestere de fiecare data de valuri in forma de ADN
-    // 10 gaini din stanga si 8 din dreapta
-
+    // depending on numRows / 3 + 1 + numFullRows we will have an increasing number of DNA waves
+    // 10 chickens on the left and 8 on the right
     for (int j = 0; j < numRows / 3 + 1 + numfullRows; j++) {
 
         for (int i = 0; i < 9; i++) {
@@ -101,7 +99,7 @@ void LateralWave::FormationInitPos(float logicWidth, float logicHeigth)
             chickens.push_back(chicken);
             left.push_back(chicken);
 
-            // informatii necesare pentru a urma sinusoida creata in waveForming()
+			// necessary information to follow the sinusoid created in waveForming()
             phase[chicken] = phaseOffset;
             baseY[chicken] = 550 + j * 400;
 
@@ -119,7 +117,7 @@ void LateralWave::FormationInitPos(float logicWidth, float logicHeigth)
                 chickens.push_back(chicken);
                 right.push_back(chicken);
 
-                // informatii necesare pentru a urma sinusoida creata in waveForming()
+                // necessary information to follow the sinusoid created in waveForming()
                 phase[chicken] = phaseOffset;
                 baseY[chicken] = 550 + j * 400;
             }

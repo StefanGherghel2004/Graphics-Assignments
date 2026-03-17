@@ -11,18 +11,18 @@ namespace mesh
 {
     struct InteractObj {
         glm::vec2 position; // bottom left corner
-        glm::vec2 size; // folosit ca un hit box de la bottom left corner
-        glm::vec2 center; // folosit pentru centrare
+        glm::vec2 size; // used as a hit box from bottom left corner
+        glm::vec2 center; // used for centering
         std::string meshName;
         int depth;
 
-        // pozitii in grid
+        // positions in the grid
         int gridI = -1;
         int gridJ = -1;
 
     };
 
-    // definite fata de left bottom corner
+	// defined in raport with left bottom corner
     Mesh* CreateSquare(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = false);
     Mesh* CreateSquareBlock(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, glm::vec3 centrCol);
     Mesh* CreateRectangle(const std::string& name, glm::vec3 leftBottomCorner, float lenx, float leny, glm::vec3 color, bool fill = false);
@@ -32,7 +32,7 @@ namespace mesh
     Mesh* CreateBumper(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 baseCol, glm::vec3 circleCol);
     Mesh* CreateStarBackground(const std::string& name, glm::vec3 corner, float radius, glm::vec3 color, glm::vec3 backColor, float width, float Heigth);
 
-    // definite fata de centru
+	// defined in raport with center
     Mesh* CreateHeart(const std::string& name, glm::vec3 center, float length, glm::vec3 color);
     Mesh* CreateEllipsoide(const std::string& name, glm::vec3 center, float radiusX, float radiusY, glm::vec3 color, float gradient, bool half = false, float zCenterOff = -0.5f);
     Mesh* CreateCylinder(const std::string& name, glm::vec3 center, float radius, float heigth, glm::vec3 color, float gradient, bool pointy); // tema 2
@@ -45,18 +45,18 @@ namespace mesh
     Mesh* CreateExplosion(const std::string& name, glm::vec3 center, float radius, glm::vec3 color1, glm::vec3 color2);
     Mesh* CreateStar(const std::string& name, glm::vec3 center, float radius, glm::vec3 color, float offset = glm::pi<float>() / 2);
 
-    // definire cu puncte
+	// defined by points
     Mesh* CreateTriangle(const std::string& name, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 color, float gradient = 1.0f);
     Mesh* CreateChickenLeg(const std::string& name, glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec3 color);
     Mesh* CreateLine(const std::string& name, glm::vec3 point1, glm::vec3 point2, glm::vec3 color);
     Mesh* Create4PPoly(const std::string& name, VertexFormat p1, VertexFormat p2, VertexFormat p3, VertexFormat p4, float gradient = 1.0f); // tema 2 
 
-    // functii ajutatoare
+    // helpers
     bool CheckEllipseEllipseCollision(glm::vec2 ellipse1Pos, glm::vec2 ellipse1Size, glm::vec2 ellipse2Pos, glm::vec2 ellipse2Size, bool half = false);
     bool CheckEllipseRectCollision(glm::vec2 ellipsePos, glm::vec2 ellipseSize, glm::vec2 rectanglePos, glm::vec2 rectangleSize);
     bool IsInsideRectangle(glm::vec2 pos, glm::vec2 recpos, glm::vec2 size);
 
-    // functia pentru dat merge (merge doar daca toate formele sunt filled)
+	// function that merges meshes (only if all shapes are filled)
     Mesh* MergeMeshes(std::vector<Mesh*>& meshes, std::string meshName);
 
 }

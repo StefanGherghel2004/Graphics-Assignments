@@ -15,7 +15,7 @@ using namespace mesh;
 ChickenInvadersGame::ChickenInvadersGame(vector<InteractObj> playerShip, float playerPosX, glm::vec2 livesCoords, InteractObj gameBorder)
 					: player(playerShip), remainingLives(3), remainingLivesCoords(livesCoords), gameBorder(gameBorder), score(0), cannonTimer(0)
 {
-    // aici trb sa centrez jucatorul deci trb sa determin la ce coordonate se afla centrul navei
+    // compute the center of the ship for centering it in the window and for scaling
     float minX = FLT_MAX, maxX = -FLT_MAX;
     float minY = FLT_MAX, maxY = -FLT_MAX;
 
@@ -37,18 +37,16 @@ ChickenInvadersGame::ChickenInvadersGame(vector<InteractObj> playerShip, float p
         if (centerPos.y > maxY)
             maxY = centerPos.y;
 
-        // setarea factorului de viteza bazat pe numarul de motoare prezente
+        // setting the speedFactor based on the number of engines the ship has
         if (playerBlock.meshName == "engine") {
             speedFactor *= 1.2f;
         }
     }
 
     auto center = glm::vec2((minX + maxX) / 2.f, (minY + maxY) / 2.f);
-
-    // scalez nava
     ScaleShip(0.6, center);
 
-    // recalculez bounding box-urile dupa scalare
+    // compute the bounding box after scaling
     minX = FLT_MAX; maxX = -FLT_MAX;
     minY = FLT_MAX; maxY = -FLT_MAX;
     float minYSize = 0;
@@ -84,10 +82,10 @@ ChickenInvadersGame::ChickenInvadersGame(vector<InteractObj> playerShip, float p
         playerBlock.position += (playerPos - newCenter);
     }
 
-    // resetarea valorilor care cresc la fiecare wave
+	// reset the values that increase with each wave to the base values
     ChickenWave::ResetBaseValues();
 
-    // valuri de gaini hardcodate (daca jucatorul le termina pe toate se ajunge tot in meniul de return)
+    // hardcoded chicken waves
     waves.push_back(new LateralWave(5.0f));
     waves.push_back(new ChickenWave(5.0f, true));
     waves.push_back(new LateralWave(5.0f));
@@ -134,10 +132,9 @@ void ChickenInvadersGame::RenderEnemies(glm::mat3& visMatrix,
     auto modelMatrix = glm::mat3(1);
     modelMatrix *= visMatrix;
 
-    // actualizez timer-ul pentru tunuri
     cannonTimer += deltaTime;
 
-    // randarea barei de cooldown pentru tunuri
+	// rendering the cannon cooldown bar
     float scale = glm::clamp(cannonTimer / cannonCooldown, 0.0f, 1.0f);
     modelMatrix *= transform2D::Translate(1060, 75);
     modelMatrix *= transform2D::Scale(scale, 1);
@@ -145,7 +142,7 @@ void ChickenInvadersGame::RenderEnemies(glm::mat3& visMatrix,
 
     modelMatrix = visMatrix;
 
-    // actualizez pozitiile gainilor si oualor
+    // update the positions of the enemies and eggs
     MoveEnemies(deltaTime);
     UpdateEggsPos(deltaTime);
 
@@ -153,8 +150,9 @@ void ChickenInvadersGame::RenderEnemies(glm::mat3& visMatrix,
 
     for (auto& obj : enemies) {
         
-        // gainile sa nu se randeze daca sunt in afara jocului (important deoarece folosesc transformare de vizualizare uniforma si in anumite
-        // aspect-ratio-uri ale ferestrei se puteau vedea)
+        // Chickens should not be rendered if they are outside the game
+        // (important because they use uniform view transformation, and in certain
+        // window aspect ratios they could be visible)
         if (obj->getPos().y > (gameBorder.position.y + gameBorder.size.y) + 32) {
             continue;
         }
@@ -167,13 +165,13 @@ void ChickenInvadersGame::RenderEnemies(glm::mat3& visMatrix,
             continue;
         }
            
-        // pot sa lanseze oua abia dupa terminarea formatiei
+        // can lay eggs only after forming the initial formation
         if (waves[0]->getFormationEnd()) {
             obj->LayEgg(deltaTime, eggs); // if possible (internal timer)
         }
         
 
-        // randarea gainii cu toate componentele ei
+		// rendering the chicken body, head, wings and legs
         glm::mat3 m = modelMatrix;
         m *= transform2D::Translate(obj->getX(), obj->getY());
         RenderFunc(meshes[obj->getMeshBody()], shaders["VertexColor"], m);
@@ -203,17 +201,17 @@ void ChickenInvadersGame::RenderEnemies(glm::mat3& visMatrix,
 
     }
 
-    // randarea oualor
+    // rendering the eggs
     for (const auto& egg : eggs) {
         glm::mat3 m = modelMatrix;
         m *= transform2D::Translate(egg.position.x, egg.position.y);
         RenderFunc(meshes[egg.meshName], shaders["VertexColor"], m);
     }
 
-    // actualizarea unghiului pentru miscarea aripilor
+    // update the angle for the wing flapping animation
     angle += direction * 2 * chickSpeed * deltaTime;
 
-    // limitarea unghiului aripilor si a directiei
+    // limit the angle to avoid unnatural flapping 
     if (angle > 15) {
         angle = 15;
         direction = -1;
@@ -224,7 +222,7 @@ void ChickenInvadersGame::RenderEnemies(glm::mat3& visMatrix,
     }
 
 
-    // randarea exploziilor generate de ciocniri si eliminarea lor daca aceastora le-a trecut timpul dat
+    // rendering explosions generated by collisions and removing them if their given time has elapsed
     int i = 0;
     for (auto& explosion : explosions) {
         explosion.timer += deltaTime;
@@ -249,7 +247,7 @@ void ChickenInvadersGame::RenderPlayer(glm::mat3& visMatrix,
     auto modelMatrix = glm::mat3(1);
     modelMatrix *= visMatrix;
 
-    // randarea blocurilor jucatorului
+    // rendering the blocks that form the player ship
     for (const auto& obj : player) {
         glm::mat3 m = modelMatrix;
         m *= transform2D::Translate(obj.position.x, obj.position.y);
@@ -267,8 +265,8 @@ void ChickenInvadersGame::RenderRemainingLives(glm::mat3& visMatrix,
     
     auto modelMatrix = glm::mat3(1);
     modelMatrix *= visMatrix;
- 
-    // randarea inimilor ce reprezinta vietile ramase si dreptunghiul  care le incadreaza
+
+	// rendering the hearts that represent the remaining lives and the rectangle that frames them
     modelMatrix *= transform2D::Translate(remainingLivesCoords.x, remainingLivesCoords.y);
     RenderFunc(meshes["livesRectangle"], shaders["VertexColor"], modelMatrix);
     modelMatrix *= transform2D::Translate(220 / 6 + 5, 38);
@@ -292,11 +290,10 @@ void ChickenInvadersGame::RenderProjectiles(glm::mat3& visMatrix,
 {
     auto modelMatrix = glm::mat3(1);
     modelMatrix *= visMatrix;
-
-    // actualizarea pozitiilor
+    
+    // update the positions before the actual rendering
     UpdateProjectiles(deltaTime);
 
-    // randarea efectiva
     for (const auto& projectile : projectiles) {
         glm::mat3 m = modelMatrix;
         m *= transform2D::Translate(projectile.position.x, projectile.position.y);
@@ -306,14 +303,14 @@ void ChickenInvadersGame::RenderProjectiles(glm::mat3& visMatrix,
 
 void ChickenInvadersGame::MovePlayerRight(float dist)
 {
-    // jucatorul nu se poate misca cand gainile se deplaseaza in formatia de inceput
+    // the player can move after the chickens have formed the initial formation
     if (!waves[0]->getFormationEnd()) {
         return;
     }
 
     float moveDist = dist * speedFactor;
 
-    // conditii care definesc cum jucatorul este blocat in miscarea spre dreapta de gameBorder
+	// conditions defining how the player is blocked in the movement to the right in case of a bumper
     float bumper = (rightBlock->meshName.rfind("bumper", 0) == 0) ? 2 : 1;
 
     if (rightBlock->position.x + bumper * rightBlock->size.x + moveDist >= gameBorder.position.x + gameBorder.size.x) {
@@ -327,7 +324,7 @@ void ChickenInvadersGame::MovePlayerRight(float dist)
 
 void ChickenInvadersGame::MovePlayerLeft(float dist)
 {
-    // jucatorul nu se poate misca cand gainile se deplaseaza in formatia de inceput
+    // the player can move after the chickens have formed the initial formation
     if (!waves[0]->getFormationEnd()) {
         return;
     }
@@ -335,7 +332,7 @@ void ChickenInvadersGame::MovePlayerLeft(float dist)
     float moveDist = dist * speedFactor;
 
 
-    // conditii care definesc cum jucatorul este blocat in miscarea spre stanga de gameBorder
+    // conditions defining how the player is blocked in the movement to the left in case of a bumper
     float bumper = (leftBlock->meshName.rfind("bumper", 0) == 0) ? 1 : 0;
 
     if (leftBlock->position.x - moveDist - bumper * leftBlock->size.x <= gameBorder.position.x) {
@@ -349,7 +346,7 @@ void ChickenInvadersGame::MovePlayerLeft(float dist)
 
 void ChickenInvadersGame::MovePlayerUp(float dist)
 {
-    // jucatorul nu se poate misca cand gainile se deplaseaza in formatia de inceput
+    // the player can move after the chickens have formed the initial formation
     if (waves[0]->getFormationEnd()) {
         for (auto& playerBlock : player) {
             playerBlock.position.y += dist * speedFactor;
@@ -359,14 +356,14 @@ void ChickenInvadersGame::MovePlayerUp(float dist)
 
 void ChickenInvadersGame::MovePlayerDown(float dist)
 {
-    // jucatorul nu se poate misca cand gainile se deplaseaza in formatia de inceput
+    // the player can move after the chickens have formed the initial formation
     if (!waves[0]->getFormationEnd()) {
         return;
     }
 
     float moveDist = dist * speedFactor;
 
-    // conditii care definesc cum jucatorul este blocat in miscarea in jos de gameBorder
+	// conditions defining how the player is blocked in the movement downwards
     if (bottomBlock->position.y - moveDist <= gameBorder.position.y) {
         moveDist = bottomBlock->position.y - gameBorder.position.y;
     }
@@ -379,7 +376,7 @@ void ChickenInvadersGame::MovePlayerDown(float dist)
 
 void ChickenInvadersGame::FireCannons()
 {
-    // tunul poate trage doar cand nu are coolDown si gainile nu sunt in formatie
+	// the cannon can fire only when it is not in cooldown and the chickens have finished forming
 
     if (cannonTimer > cannonCooldown && waves[0]->getFormationEnd()) {
         for (auto& playerBlock : player) {
@@ -404,7 +401,7 @@ void ChickenInvadersGame::UpdateProjectiles(float deltaTime)
 
 void ChickenInvadersGame::CheckProjectilesPos(float windowTop)
 {
-    // elimina proiectilele care ies din fereastra
+	// erase the projectiles that go out of the window
     int i = 0;
     for (auto& projectile : projectiles) {
         if (projectile.position.y > windowTop) {
@@ -416,7 +413,8 @@ void ChickenInvadersGame::CheckProjectilesPos(float windowTop)
     }
 }
 
-// verificarea colizionilor care returneaza rezultatul coliziunii ou-jucator pentru a genera in clasa principala un camera shake
+// checking collisions that returns the result of the egg-player collision
+// to generate a camera shake in the main class
 bool ChickenInvadersGame::CheckCollisions()
 {
     CheckProjectileToEggCollision();
@@ -446,10 +444,10 @@ bool ChickenInvadersGame::CheckEggToPlayerCollision()
 
                     std::string name;
                     bool destroyed = false;
-                    // o explozie de 0.3 secunde
+                    // .3 seconds explosion
                     explosions.push_back({ egg.position - glm::vec2(0, egg.size.y), 0, 0.3});
 
-                    // trecerea bumper-ului prin starile succesive de degradare
+					// successive degradation states of the bumper
                     if (playerBlock.meshName == "bumper") {
                         name = "bumper1";
                     }
@@ -462,7 +460,7 @@ bool ChickenInvadersGame::CheckEggToPlayerCollision()
                         name = "bumper3";
                     }
 
-                    // bumper-ul este distrus direct daca este lovit de un ou de aur
+					// bumper directly destroyed by a golden egg
                     if (playerBlock.meshName == "bumper3" || egg.meshName == "eggGold") {
                         destroyed = true;
                     }
@@ -471,7 +469,7 @@ bool ChickenInvadersGame::CheckEggToPlayerCollision()
                         playerBlock.meshName = name;
                     }
 
-                    // cand este distrus bumper-ul se transforma intr-un block normal ca a pastreze conectivitatea navei
+					// when destroyed, the bumper transforms into a normal block to maintain the connectivity of the ship
                     if (destroyed) {
                         float size = playerBlock.size.x;
                         playerBlock = { playerBlock.position, glm::vec2(size, size), glm::vec2(size / 2, size / 2), "squareBlock", 0 };
@@ -510,7 +508,7 @@ bool ChickenInvadersGame::CheckEggToPlayerCollision()
 
 void ChickenInvadersGame::CheckProjectileToEnemyCollision()
 {
-    // proiectilele pe care jucatorul a apucat sa le lanseze sa nu distruga gainile in formatie
+	// the projectiles that the player managed to fire should not destroy the chickens in formation
     if (!waves[0]->getFormationEnd()) {
         return;
     }
@@ -560,7 +558,7 @@ void ChickenInvadersGame::MoveEnemies(float deltaTime)
 
     enemies = waves[0]->getChickens();
 
-    // logica de trecere la urmatorul val de gaini
+    // next wave of chickens logic
     if (enemies.empty()) {
         if (waves.size() <= 1) {
             endGame = true;
@@ -585,7 +583,7 @@ void ChickenInvadersGame::MoveEnemies(float deltaTime)
 
 void ChickenInvadersGame::UpdateEggsPos(float deltaTime)
 {
-    // actualizarea pozitiei gainilor si eliminarea celor care ies din fereastra
+    //  updating position
     for (auto& egg : eggs) {
         if (egg.meshName == "egg")
             egg.position.y -= eggSpeed * deltaTime;
@@ -594,6 +592,7 @@ void ChickenInvadersGame::UpdateEggsPos(float deltaTime)
             egg.position.y -= 1.4f * eggSpeed * deltaTime;
     }
 
+	// erasing the eggs that go out of the game window
     for (int i = 0; i < eggs.size();) {
         if (eggs[i].position.y + eggs[i].size.y < gameBorder.position.y) {
             eggs.erase(eggs.begin() + i);

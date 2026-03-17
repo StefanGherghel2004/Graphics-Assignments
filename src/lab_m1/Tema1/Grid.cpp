@@ -55,14 +55,14 @@ void grid::Grid::ClearDrawing()
     }
 }
 
-// punerea unui block nou in grid
+// inserting new block
 void Grid::InsertObject(int i, int j, InteractObj object)
 {
     gridMatrix[i][j].push_back(object);
     drawnBlocks++;
 }
 
-// scoatem din grid ultimul block adaugat pe aceea pozitie
+// removing the last block from a cell
 void Grid::RemoveObject(int i, int j)
 {
     gridMatrix[i][j].pop_back();
@@ -78,15 +78,15 @@ bool Grid::CheckRestrictions()
             for (auto& obj : gridMatrix[i][j]) {
 
                 if (obj.meshName == "cannon") {
-                    // numararea numarului de tunuri pentru ca trebuie sa avem macar un tun ca sa aiba sens jocul
+					// a ship should have at least one cannon
                     cannonCount++;
 
-                    // verifica ca in fata tunului sa nu mai fie plasat vreun bloc
+					// check if a block is obstructing the cannon
                     if (!CheckCol(i, j, true)) {
                         return false;
                     }
 
-                    // verifica ca sa in stanga si in dreapta pe toata coloana de la pozitia lui in sus sa in fie bumpere
+					// checking juxtaposition of bumpers to cannon
                     if (!CheckCol(i, j - 1, true, true, "bumper")) {
                         return false;
                     }
@@ -99,7 +99,7 @@ bool Grid::CheckRestrictions()
                 }
 
                 if (obj.meshName == "engine") {
-                    // sub motor sa nu fie niciun block
+					// no block should be bellow an engine
                     if (!CheckCol(i, j, false)) {
                         return false;
                     }
@@ -108,7 +108,7 @@ bool Grid::CheckRestrictions()
 
                 if (obj.meshName == "bumper") {
 
-                    // verificarea celor 3 coloane
+					// checking the 3 columns that should be clear above the bumper
                     if (!CheckCol(i, j, true)) {
                         return false;
                     }
@@ -121,19 +121,17 @@ bool Grid::CheckRestrictions()
                         return false;
                     }
 
-                    // verificare pozitionare tunuri langa bumper
-
+					// checking juxtaposition of cannons to bumper
                     if (!CheckPos(i, j - 1, "cannon") || !CheckPos(i, j + 1, "cannon")) {
                         return false;
                     }
 
-                    // verificare pozitionare bumper langa bumper (trebuie sa vad exact ce vrea enuntul)
+                    // checking juxtaposition of bumper to bumper
 
                     if (!CheckPos(i, j - 1, "bumper") || !CheckPos(i, j + 1, "bumper")) {
                         return false;
                     }
 
-                    // ca sa nu se suprapuna bumperele
                     if (!CheckPos(i, j - 2, "bumper") || !CheckPos(i, j + 2, "bumper")) {
                         return false;
                     }
@@ -148,13 +146,12 @@ bool Grid::CheckRestrictions()
         }
     }
 
-    // respectarea tuturor conditiilor
     return CheckOverlapping() && CheckConnectedDrawing() && (drawnBlocks <= 10) && (drawnBlocks > 0) && cannonCount > 0;
 }
 
 bool Grid::CheckOverlapping()
 {
-    // design-ul meu permita sa punem blocuri unul peste altul deci se verifica daca aceasta exista
+	// my design allows blocks to be placed on top of each other in the editor so we check if this happens
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
             if (gridMatrix[i][j].size() > 2) {
@@ -166,7 +163,7 @@ bool Grid::CheckOverlapping()
     return true;
 }
 
-// verificarea conectivitatii
+// the ship should not have separate components
 bool Grid::CheckConnectedDrawing()
 {
     if (drawnBlocks < 2) {
@@ -229,7 +226,8 @@ bool Grid::CheckConnectedDrawing()
 
 bool Grid::CheckCol(int i, int j, bool upOrDown, bool checkPos, std::string mesh)
 {
-    // verificarea unei coloane (aceasta poate in functie de parametrii sa verifice in sus sau in jos de la o pozitie data si poate verifica si conditii diferite)
+    // checking a column (depending on the parameters,
+    // this can check up or down from a given position and can also check different conditions)
     if (i > N - 1 || j > M - 1 || j < 0 || i < 0) {
         return true;
     }
@@ -256,11 +254,11 @@ bool Grid::CheckCol(int i, int j, bool upOrDown, bool checkPos, std::string mesh
     return true;
 }
 
+// used to check if a certain block is not at a given position
 bool Grid::CheckPos(int i, int j, string meshName)
 {
-    // folosit sa aflam daca la pozitia data nu se afla un anumit bloc
 
-    // in afara grid-ului deci adevarat => nu se afla niciun bloc
+	// outside the grid so true => there is no block there
     if (i > N - 1 || j > M - 1 || j < 0 || i < 0) {
         return true;
     }
@@ -276,7 +274,8 @@ bool Grid::CheckPos(int i, int j, string meshName)
 
 std::vector<InteractObj> Grid::GetSortedDepthObjects(bool reverse)
 {
-    // le pun pe toate in lista ca sa le pot sorta pe baza adancimii
+
+	// putting all the objects in a list to be able to sort them based on depth
     std::vector<InteractObj> renderList;
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
@@ -288,8 +287,8 @@ std::vector<InteractObj> Grid::GetSortedDepthObjects(bool reverse)
         }
     }
 
-    // functionalitate folositoare pentru randare (ordinea de randare de la depth mic la depth mare)
-    // sau pentru verificarea celor mai "in fata" obiecte randate la eliminarea cu click dreapta (de la depth mare la depth mic)
+	// functionality useful for rendering (rendering order from low depth to high depth)
+	// or checking the most "in front" objects rendered for right click removal (from high depth to low depth)
     std::sort(renderList.begin(), renderList.end(),
         [reverse](const InteractObj& a, const InteractObj& b) {
             return (reverse ? (a.depth > b.depth) : (a.depth < b.depth));
@@ -301,7 +300,8 @@ std::vector<InteractObj> Grid::GetSortedDepthObjects(bool reverse)
 
 void Grid::SetDrawing()
 {
-    // in drawing punem toate elementele sortate de la depth mare la mic si eliminam blocurile din grid 
+	// in drawing we put all the elements sorted from high depth to low
+    // and remove the blocks from the base grid
     drawing = GetSortedDepthObjects(true);
     while (drawing.back().meshName == "square1") {
         drawing.pop_back();
@@ -312,7 +312,7 @@ void Grid::SetDrawing()
 
 void Grid::UpdateHoveredBlock(glm::vec2 pos)
 {
-    // actualizarea blocului care este hovered pentru obtinerea efectului de hover
+	// update the hovered block to get the hover effect
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
             if (IsInsideRectangle(pos, gridMatrix[i][j][0].position, gridMatrix[i][j][0].size)) {
@@ -325,8 +325,8 @@ void Grid::UpdateHoveredBlock(glm::vec2 pos)
     hoveredBlockCoords = glm::vec2(-1, -1);
 }
 
-// eliminarea ultimului bloc desenat dintr-o anumita zona ce tine cont de cate blocuri si in cel fel ocupa fiecare element
-
+// remove the last block drawn in a certain area that takes into account how many blocks
+// and how each element occupies the space
 void Grid::RemoveLastDrew(glm::vec2 mousePos)
 {
     std::vector<InteractObj> renderList = GetSortedDepthObjects(true);

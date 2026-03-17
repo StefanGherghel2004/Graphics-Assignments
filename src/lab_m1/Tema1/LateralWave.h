@@ -17,12 +17,11 @@ public:
 
 protected:
 
-
-    // vectori folositi pentru a controla gaininile din fiecare parte
+	// vectors used to control the chickens on each side
     std::vector<Chicken*> left;
     std::vector<Chicken*> right;
 
-    // retinem informatii despre pozitia si faza fiecarei  gaini din formatie
+	// keeping track of the position and phase of each chicken in the formation
     std::unordered_map<Chicken*, float> baseY;
     std::unordered_map<Chicken*, float> phase;
 

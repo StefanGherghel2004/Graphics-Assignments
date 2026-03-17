@@ -194,7 +194,7 @@ Mesh* mesh::CreateEngine(
 
     std::vector<VertexFormat> vertices =
     {
-        // punctele pentru foc
+		// points for the fire, with a gradient color
         VertexFormat(corner + glm::vec3(0.05 * length, 0, 0), fireCol),
         VertexFormat(corner + glm::vec3(0.95 * length, 0, 0), fireCol),
         
@@ -332,57 +332,57 @@ Mesh* mesh::CreateTriangle(const std::string& name, glm::vec3 p1, glm::vec3 p2, 
 
 bool mesh::CheckEllipseEllipseCollision(glm::vec2 ellipse1Pos, glm::vec2 ellipse1Size, glm::vec2 ellipse2Pos, glm::vec2 ellipse2Size, bool half)
 {
-    // coordonatele centrului elipsei 1
+	// coordinates of the center of ellipse 1
     float e1x = ellipse1Pos.x;
     float e1y = ellipse1Pos.y;
     float r1x = ellipse1Size.x;
     float r1y = ellipse1Size.y;
 
-    // coordonatele centrului elipsei 2
+    // coordinates of the center of ellipse 2
     float e2x = ellipse2Pos.x;
     float e2y = ellipse2Pos.y;
     float r2x = ellipse2Size.x;
     float r2y = ellipse2Size.y;
 
-    // gasim punctul de pe elipsa 2 cel mai apropiat de centrul elipsei 1
+	// finding the closest point on ellipse 2 to the center of ellipse 1
     float closestX = glm::clamp(e1x, e2x - r2x, e2x + r2x);
     float closestY = glm::clamp(e1y, e2y - r2y, e2y + r2y);
 
-    // calculam distanta normalizata intre centrul elipsei si acel punct
+	// compute the normalized distance between the center of ellipse 1 and that point
     float dx = (closestX - e1x) / r1x;
     float dy = (closestY - e1y) / r1y;
 
-    // daca suma patratelor e <= 1, punctul e in interiorul elipsei
-
+    // boolean condition used for half ellipses
     bool halfCond = half ? closestY > e2y : true;
 
+	// if the sum of squares is <= 1, the point is inside the ellipse
     return ((dx * dx + dy * dy) <= 1.0f) && halfCond;
 }
 
 
 bool mesh::CheckEllipseRectCollision(glm::vec2 ellipsePos, glm::vec2 ellipseSize, glm::vec2 rectanglePos, glm::vec2 rectangleSize)
 {
-    // coordonatele centrului elipsei
+    // coordinates of the center of ellipse
     float ex = ellipsePos.x;
     float ey = ellipsePos.y;
     float rx = ellipseSize.x;
     float ry = ellipseSize.y;
 
-    // coordonate dreptunghi
+    // coordinates of the rectangle
     float recx = rectanglePos.x;
     float recy = rectanglePos.y;
     float recw = rectangleSize.x;
     float rech = rectangleSize.y;
 
-    // gasim verful dreptunghiului cel mai apropiat de centrul elipsei
+	// finding the closest point on the rectangle to the center of the ellipse
     float closestX = glm::clamp(ex, recx, recx + recw);
     float closestY = glm::clamp(ey, recy, recy + rech);
 
-    // calculam distanta normalizata intre centrul elipsei si acel punct
+	// computeing the normalized distance between the center of the ellipse and that point
     float dx = (closestX - ex) / rx;
     float dy = (closestY - ey) / ry;
 
-    // daca suma patratelor e <= 1, punctul e in interiorul elipsei
+	// if the sum of squares is <= 1, the point is inside the ellipse
     return (dx * dx + dy * dy) <= 1.0f;
 }
 
@@ -590,7 +590,7 @@ Mesh* mesh::CreateStarBackground(const std::string& name, glm::vec3 corner, floa
 
     srand((unsigned)time(NULL));
 
-    // generarea cu un grad de randomizare a stelelor
+    // generating stars with a random offset
     for (int j = 0; j < M; j++) {
         for (int i = 0; i < N; i++) {
 
@@ -664,11 +664,10 @@ Mesh* mesh::CreateTrack(const std::string& name, glm::vec3 center, float lenX, f
     return MergeMeshes(meshes, name);
 
 }
-
-// practic o metoda care genereaza  5 tipuri de gari posibile pe baza unui input de 3 culori initiale
-// pentru tipul 0  se genereaza gara gentrala care contine aceste culori
-// pentru restul se genereaza o gara care are ca accente unele din aceste culori dar sunt intr-o tematica diferita (in cazul asta fiecare e u culoare verde, rosu, albastru, galben/portocaliu)
-// apeland intr-o bucla cu aceiasi parametrii (tipul fiind incrementat) se obtine un set de  gara centrala + 4 gari normale
+// basically a method that generates 5 possible types of stations based on an input of 3 initial colors
+// for type 0, the central station is generated that contains these colors
+// for the rest, a station is generated that has some of these colors as accents but is in a different theme (in this case each one is a green, red, blue, yellow/orange color)
+// calling in a loop with the same parameters (the type being incremented) a set of central station + 4 normal stations is obtained
 Mesh* mesh::CreateTrainStation(const std::string& name, glm::vec3 center, float lenX, float lenY, float lenZ, glm::vec3 color1, glm::vec3 color2, glm::vec3 color3, float gradient, int type)
 {
 

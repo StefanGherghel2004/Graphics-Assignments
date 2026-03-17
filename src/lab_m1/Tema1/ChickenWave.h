@@ -35,17 +35,15 @@ private:
 
 protected:
 
-    // vectorul de gaini
     vector<Chicken*> chickens;
 
-    // valorile pe care le incrementeaza constructorul de valuri
+    // the values incremented by the wave constructor
     static float baseChickenSpeed;
     static float baseNumRows;
     static float baseEggSpeed;
     static float baseEggPeriod;
     static float baseNumfullRows;
 
-    // parametrii ce preiau valorile statice de mai sus sa lucreze in instanta
     float chickenSpeed;
     int   numRows;
     float eggSpeed;

@@ -86,46 +86,43 @@ namespace m1
         const int col = 16;
         const int row = 10;
 
-        // variabile folosite pentru pozitia blocului randat la drag
+		// used for the position of the dragged block
         int mousePosX;
         int mousePosY;
-
-        // daca avem un bloc pe care l tragem
         bool mouseSel;
 
-        // mouseMesh este renundant dar nu mai am timp sa schimb asta
+        // redundant variables
         std::string mouseMesh;
         InteractObj mouseHoldBlock;
 
-        // numarul de componente maxim (10 setat in init)
+		// max number of components (set to 10 in init)
         int components;
 
-        // canStart reprezinta daca nava desentata respecta constrangerile
+        // true if the ship respects the restrictions
         bool canStart;
 
-        // bool ce zice daca jocul este in desfasurare
+        // game in course
         bool renderGame;
 
         ViewportSpace viewSpace;
         LogicSpace logicSpace;
 
-        // grid-ul din editor
+        // editor grid
         Grid *blocksGrid;
 
-        // butoanele de selectat pentru drag and drop
+		// select buttons for drag and drop
         std::vector<InteractObj> blockSelectButtons;
 
         InteractObj startButton;
 
-        // butoanele din meniul din intoarcere dupa ce jcuatorul pierde
+        // interactive buttons in the return menu
         InteractObj returnWithClear;
         InteractObj returnButton;
 
-
-        // index-ul blocului de selectie  peste care este mouse-ul
+		// idx of the selection block that the mouse is hovering over
         int hoveredBlockIndex;
 
-        // map ca sa facem transformarea dintre un bloc de selectie si ce bloc de nava reprezinta acesta
+		// map between the selection blocks and the corresponding ship blocks
         const std::unordered_map<int, InteractObj> selectBlocks = {
             {0, {glm::vec2(0, 0), glm::vec2(unitLen, unitLen), glm::vec2(unitLen / 2, unitLen / 2), "squareBlock", 0}},
             {1, {glm::vec2(0, 0), glm::vec2(unitLen, unitLen), glm::vec2(unitLen / 2, 0), "engine", 0}},
@@ -134,31 +131,29 @@ namespace m1
         };
 
 
-        // pentru toate obiectele offset-ul pana la punctul de apucare/ centrul blocului controlat
+		// for all objects the offset to the grabbing point/ center of the controlled block
         const int globalOff = unitLen / 2;
 
-        // folosit pentru a putea randa obiectele pe baza unei ordini de randare (objectDepth este incrementat mereu la adaugarea unui element pe grid)
+        // used for rendering in the correct order
         int objectDepth;
 
-        // daca ne aflam in meniul de return
         bool returnMenu;
 
-        // resize factor x si y nu sunt folosite, parametrii pe care i-am folosit la partea de scris in meniul de intoarcere
+		// factors used for resizing the window and maintaining the aspect ratio
         float resizeFactor;
         float resizeFactorX;
         float resizeFactorY;
 
-  
         ChickenInvadersGame* game;
 
         TextRenderer* textRenderer;
 
-        // parametrii ce controleaza cameraShake
+		// camera shake parameters
         float shakeTimer = 0;
         float shakePeriod = 0;
         float shakeStrength = 0;
 
-        // parametrii ce tin cont de cel mai mare scor din sesiunea curenta si all time (este extras si scris intr-un fisier cel all-time)
+        // handling statistics 
         int currentSessionHighScore = 0;
         int allTimeHighScore = 0;
         

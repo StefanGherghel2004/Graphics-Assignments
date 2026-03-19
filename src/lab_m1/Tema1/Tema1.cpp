@@ -148,47 +148,40 @@ void Tema1::Init()
     Mesh* heart = mesh::CreateHeart("heart", glm::vec3(0, 0, 45), 2, RED);
     AddMeshToList(heart);
 
-    // oul gainii (am pus z pe -1 sa fie sub gaina in cazul unor suprapuneri de randuri de gaini)
+	// the egg (the z coordinate is set to -1 so that it is under the chicken in case of overlapping rows of chickens)
     Mesh* egg = mesh::CreateEllipsoide("egg", glm::vec3(0, 0, -1), 10, 16, glm::vec3(1, 0.937, 0.682), 0.625);
     AddMeshToList(egg);
 
-    // oul de aur
     Mesh* eggGold = mesh::CreateEllipsoide("eggGold", glm::vec3(0, 0, -1), 10, 16, glm::vec3(0.9, 0.6, 0.25), 0.625);
     AddMeshToList(eggGold);
 
     glm::vec3 newCorner = glm::vec3(-0.5 * unitLen, - 0.5 * unitLen, 0);
 
-    // am setat coordonata z astfel incat capul sa fie peste corp
- 
-    // corpul gainii
+	// setting the z coordinate so that the head is above the body
     Mesh* chickenBody = mesh::CreateSquare("chickenBody", newCorner, unitLen, glm::vec3(0, 0.588, 1), true);
     AddMeshToList(chickenBody);
 
     Mesh* chickenBodyRed = mesh::CreateSquare("chickenBodyRed", newCorner, unitLen, RED, true);
     AddMeshToList(chickenBodyRed);
 
-    // capul gainii
     Mesh* chickenHead = mesh::CreateChickenHead("chickenHead", glm::vec3(0, 0, 1), 16, GREY_08, BLACK, RED, ORANGE);
     AddMeshToList(chickenHead);
 
     Mesh* chickenHeadGold = mesh::CreateChickenHead("chickenHeadGold", glm::vec3(0, 0, 1), 16, GREY_08, BLACK, glm::vec3(0.9, 0.6, 0.25), glm::vec3(0.9, 0.6, 0.25));
     AddMeshToList(chickenHeadGold);
 
-    //aripa gainii
     Mesh* chickenWing = mesh::CreateTriangle("chickenWing", glm::vec3(0, 0, 3), glm::vec3(32, 12, 3), glm::vec3(20, 48, 3), GREY_08);
     AddMeshToList(chickenWing);
 
     Mesh* chickenWingRed = mesh::CreateTriangle("chickenWingGold", glm::vec3(0, 0, 3), glm::vec3(32, 12, 3), glm::vec3(20, 48, 3), glm::vec3(0.9, 0.6, 0.25));
     AddMeshToList(chickenWingRed);
 
-    //piciorul gainii
     Mesh* chickenLeg = mesh::CreateChickenLeg("chickenLeg", glm::vec3(0, 0, 3), glm::vec3(5, -10, 3), glm::vec3(15, -5, 3), ORANGE);
     AddMeshToList(chickenLeg);
 
     Mesh* chickenGold = mesh::CreateChickenLeg("chickenLegGold", glm::vec3(0, 0, 3), glm::vec3(5, -10, 3), glm::vec3(15, -5, 3), glm::vec3(0.9, 0.6, 0.25));
     AddMeshToList(chickenGold);
 
-    // vedem daca o mai folosesc
     Mesh* debugLine = mesh::CreateLine("debugLine", glm::vec3(980, 0, 0), glm::vec3(980, 720, 0), RED);
     AddMeshToList(debugLine);
 
@@ -205,14 +198,14 @@ void Tema1::Init()
     AddMeshToList(coolDown);
 
 
-    // folosit pentru randarea textului
+	// used for rendering text (score, lives, highscore)
     textRenderer = new TextRenderer(window->props.selfDir, window->props.resolution.x, window->props.resolution.y);
     textRenderer->Load("assets/fonts/Hack-Bold.ttf", 24);
 
     modelMatrix = glm::mat3(1);
     modelMatrix *= visMatrix;
 
-    // contururile pentru butoanele cu componente adaugate
+	// the outline for the block selection buttons and the blocks to select
     for (int i = 0; i < 4; i++) {
         glm::vec2 pos(0, i * (logicSpace.height / 4));
         glm::vec2 size(logicSpace.width / 4, logicSpace.height / 4);
@@ -221,7 +214,7 @@ void Tema1::Init()
     }
 
 
-    // extragerea scourului all-time din fisier
+	// extracting the all time high score from the text file
     std::ifstream fin("highscore.txt");
     if (fin.good()) {
         fin >> allTimeHighScore;
@@ -238,7 +231,9 @@ void Tema1::FrameStart()
     // Clears the color buffer (using the previously set color) and depth buffer
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // suprapunerea sa se bazeze pe ordinea in care randez in prima parte(cu grid) si bazat pe depth in a doua parte
+
+	// the overlapping should be based on the order of rendering in the first part (with the grid)
+    // and based on depth in the second part
     if (!renderGame) {
         glDisable(GL_DEPTH_TEST);
     }
@@ -260,7 +255,7 @@ void Tema1::Update(float deltaTimeSeconds)
 
     if (renderGame && shakeTimer < shakePeriod) {
 
-        // generarea camera shake-ului
+        // generating the camera shake effect
 
         shakeTimer += deltaTimeSeconds;
 
@@ -275,13 +270,13 @@ void Tema1::Update(float deltaTimeSeconds)
 
     if (!renderGame) {
 
-        // desenare grid de patrate + ce este pus pe grid
+		// drawing the grid (including current ship and hover effect)
         DrawGrid();
 
         modelMatrix = glm::mat3(1);
         modelMatrix *= visMatrix;
 
-        // randarea contururilor pentru butoanele cu componente
+		// rendering the blocks to select and the hover effect if the mouse is above one of the blocks
         for (int i = 0; i < 4; i++) {
             if (i == hoveredBlockIndex) {
                 RenderMesh2D(meshes["componentSelectHover"], shaders["VertexColor"], modelMatrix);
@@ -293,7 +288,7 @@ void Tema1::Update(float deltaTimeSeconds)
             modelMatrix *= transform2D::Translate(0, logicSpace.height / 4);
         }
 
-        // numar de componente ramase
+		// remaining components to be placed in the ship
         modelMatrix = glm::mat3(1);
         modelMatrix *= visMatrix;
 
@@ -305,10 +300,9 @@ void Tema1::Update(float deltaTimeSeconds)
         modelMatrix = glm::mat3(1);
         modelMatrix *= visMatrix;
 
-        // verificarea restrictiilor 
+		// checking if the ship configuration respects the restrictions and rendering the corresponding start button
         CheckRestrictions();
 
-        // randarea butonului potrivit de start in functie de rezultatul verificarii restrictiilor
         if (canStart) {
             RenderMesh2D(meshes["startButtonGreen"], shaders["VertexColor"], modelMatrix);
         }
@@ -316,7 +310,7 @@ void Tema1::Update(float deltaTimeSeconds)
             RenderMesh2D(meshes["startButtonRed"], shaders["VertexColor"], modelMatrix);
         }
 
-        // randare bloc selectat cu pozitia mouse-ului
+		// rendering the block dragged by the mouse
         if (mouseSel) {
             modelMatrix = glm::mat3(1);
             modelMatrix *= visMatrix;
@@ -341,7 +335,7 @@ void Tema1::FrameEnd()
         return;
     }
 
-    // verificare daca proiectilele au depasit window-ul si eliminare din vector
+	// at the end of the frame we check the projectiles positions
     game->CheckProjectilesPos((float) logicSpace.height);
 
 }
@@ -362,7 +356,6 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
     float dist = 400 * deltaTime;
 
-    // mapare si pw WASD si sageti a controlului jucatorului
     if (window->KeyHold(GLFW_KEY_W) || window->KeyHold(GLFW_KEY_UP)) {
         game->MovePlayerUp(dist);
     }
@@ -384,7 +377,7 @@ void Tema1::OnInputUpdate(float deltaTime, int mods)
 
 void Tema1::OnKeyPress(int key, int mods)
 {
-    // daca nu suntem in joc nu folosim taste
+	// don't use keys if we're not in game
     if (!renderGame) {
         return;
     }
@@ -410,7 +403,7 @@ void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 
     blocksGrid->UpdateHoveredBlock(mouseLogic);
 
-    // randare in continuare a blocului selectat in pozitia corecta
+	// updating the correct position of the dragged block
     if (mouseSel) {
         mousePosX = mouseLogic.x - globalOff;
         mousePosY = mouseLogic.y - globalOff;
@@ -418,14 +411,14 @@ void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
         return;
     }
 
-    // actualizarea unui hover deasupra unui block de selectie
+    // updating the hovered selection block 
     for (int i = 0; i < blockSelectButtons.size(); i++) {
         const auto& btn = blockSelectButtons[i];
         if (IsInsideRectangle(mouseLogic, btn.position, btn.size)) {
             hoveredBlockIndex = i;
             break;
         }
-        // daca s-a ajuns aici in for inseamna ca e in afara blocurilor de selectie
+		//  reached this point => the mouse is outside the selection blocks
         if (i == blockSelectButtons.size() - 1) {
             hoveredBlockIndex = -1;
         }
@@ -456,7 +449,7 @@ void Tema1::DrawGrid()
     modelMatrix = glm::mat3(1);
     modelMatrix *= visMatrix;
 
-    // le pun pe toate in lista ca sa le pot sorta pe baza adancimii si sa le randez corect (permite suprapunerile asteptate in grid)
+	// putting all the blocks in the list so that I can sort them based on depth and render them correctly
     std::vector<InteractObj> renderList = blocksGrid->GetSortedDepthObjects();
 
     for (const auto& obj : renderList) {
@@ -478,7 +471,7 @@ void Tema1::RenderGame(float deltaTime)
     
     if (game->GameEnded()) {
 
-        // randarea meniului de intoarcere cu butoanele aferente si actualizarea scorurilor
+		// rendering the return menu with the corresponding buttons and updating the scores
         RenderMesh2D(meshes["gameMenuRectangle"], shaders["VertexColor"], visMatrix);
         RenderMesh2D(meshes["gameMenuButton"], shaders["VertexColor"], visMatrix);
         RenderMesh2D(meshes["gameMenuButton"], shaders["VertexColor"], visMatrix * transform2D::Translate(480, 0));
@@ -528,46 +521,42 @@ void Tema1::RenderGame(float deltaTime)
         return;
     }
 
-    // randarea fundalului si a conturului negru ce ascunde gainile din afara ferestrei in caz ca fereastra nu are aspect ratio 16:9
+	// rendering the game background and the black outline that hides the chickens outside of the window in special aspects ratios
     RenderMesh2D(meshes["background"], shaders["VertexColor"], visMatrix);
     RenderMesh2D(meshes["mask1"], shaders["VertexColor"], visMatrix);
     RenderMesh2D(meshes["mask1"], shaders["VertexColor"], visMatrix * transform2D::Translate(0, 820));
     RenderMesh2D(meshes["mask2"], shaders["VertexColor"], visMatrix);
     RenderMesh2D(meshes["mask2"], shaders["VertexColor"], visMatrix * transform2D::Translate(1380, 0));
 
-    //randarea proiectilelor
     game->RenderProjectiles(visMatrix, meshes, shaders, [this](Mesh* mesh, Shader* shader, const glm::mat3& modelMatrix) {
         this->RenderMesh2D(mesh, shader, modelMatrix);
         },
         deltaTime
     );
 
-    // randarea navei
+    // player's ship
     game->RenderPlayer(visMatrix, meshes, shaders, [this](Mesh* mesh, Shader* shader, const glm::mat3& modelMatrix) {
         this->RenderMesh2D(mesh, shader, modelMatrix);
         }
     );
 
-    //randarea proiectilelor
     game->RenderEnemies(visMatrix, meshes, shaders, [this](Mesh* mesh, Shader* shader, const glm::mat3& modelMatrix) {
         this->RenderMesh2D(mesh, shader, modelMatrix);
         },
         deltaTime
     );
 
-    // randarea vietilor ramase jucatorului in joc
     game->RenderRemainingLives(visMatrix, meshes, shaders, [this](Mesh* mesh, Shader* shader, const glm::mat3& modelMatrix) {
         this->RenderMesh2D(mesh, shader, modelMatrix);
         }
     );
 
+	// game collision = camera shake
     if (game->CheckCollisions()) {
-        // camera shake
         CameraShake(0.5f, 10.0f);
     }
 
-
-    // ca textul sa apara deasupra randarea se face dezactivand depth test
+	// disabling depth test for text rendering so that it appears above everything else
     glDisable(GL_DEPTH_TEST);
 
     std::string score = "Score: " + std::to_string(game->getScore());
@@ -598,14 +587,14 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
     if (IS_BIT_SET(button, GLFW_MOUSE_BUTTON_LEFT) && !mouseSel) {
 
         if (IsOverStartButton(mouseLogic.x, mouseLogic.y) && canStart) {
-            // putem sa pornim jocul
+			// can start the game
             renderGame = true;
             blocksGrid->SetDrawing();
             InteractObj gameBorderRectangle = {glm::vec2(0.05, 0.05), glm::vec2(1279.95, 719.95), glm::vec2(0), "borderRectangle", 0};
             game = new ChickenInvadersGame(blocksGrid->getDrawing(), 640, glm::vec2(1060, 0), gameBorderRectangle);
         }
 
-        // click pe selectarea unei componente
+		// click for selecting a block to drag with the mouse
         for (auto& obj : blockSelectButtons) {
             if (IsInsideRectangle(mouseLogic, obj.position, obj.size)) {
 
@@ -622,8 +611,8 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
         }
     }
 
+    // right click to erase block from the grid
     if (IS_BIT_SET(button, GLFW_MOUSE_BUTTON_RIGHT) && !mouseSel) {
-        // eliminarea cu click dreapta din grid
         blocksGrid->RemoveLastDrew(mouseLogic);
 
     }
@@ -632,7 +621,7 @@ void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
     if (returnMenu) {
         if (IS_BIT_SET(button, GLFW_MOUSE_BUTTON_LEFT) ) {
 
-            // daca dam click pe unul dintre butoane ajungem inapoi la editor
+            // two button options: build a new ship or restart wih the same one
             if (IsInsideRectangle(mouseLogic, returnWithClear.position, returnWithClear.size)) {
                 blocksGrid->ClearDrawing();
                 renderGame = false;
@@ -670,7 +659,7 @@ void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
                     placedBlock.size = mouseHoldBlock.size;
                     placedBlock.center = ComputeBlockCenter(mouseMesh, unitLen, placedBlock.size);
 
-                    // incrementat la fiecare adaugare pentru randare corecta
+					// incremented at each addition for correct rendering
                     placedBlock.depth = ++objectDepth;
                     blocksGrid->InsertObject(i, j, placedBlock);
                     mouseSel = false;
@@ -687,7 +676,7 @@ void Tema1::OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods)
 
 void Tema1::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
 {
-    // bla
+
 }
 
 
@@ -777,7 +766,7 @@ glm::vec2 Tema1::ComputeBlockCenter(const std::string& meshName, float unitLen, 
     if (meshName == "bumper")
         return glm::vec2(unitLen / 2, unitLen);
 
-    // o valoare default pentru centru
+    // default value for center
     return size * 0.5f;
 }
 

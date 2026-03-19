@@ -29,7 +29,7 @@ Tema2::~Tema2()
 void Tema2::Init()
 {
 
-    // initializarea celor 3 tipuri de camera
+    // initialisations for the 3 cameras
     miniCamera = new Tema2Camera::Camera();
     miniCamera->Set(glm::vec3(0, 100, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, -1));
 
@@ -38,7 +38,7 @@ void Tema2::Init()
 
     endGameCamera = new Tema2Camera::Camera();
 
-    // camera este setata la inceput ca cea normala (pov tren)
+    // initial camera => train POV (3rd person)
     camera = normalCamera;
 
     textRenderer = new TextRenderer(window->props.selfDir, window->props.resolution.x, window->props.resolution.y);

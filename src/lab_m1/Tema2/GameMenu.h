@@ -17,13 +17,13 @@ public:
 
     GameMenu();
 
-    // randeaza text pe ecran tinand cont de marimea caracterelor pe axa ox pentru a centra la pozitia data
+    // rendering text taking into account the character width on the x axis for centering
     static void RenderCenteredText(TextRenderer* renderer, float charWidth, string text, glm::vec2 pos, glm::vec3 color);
 
-    // apelat atunci cand meniul este activ
+    // called when the menu is active
     void Render(TextRenderer* renderer, glm::ivec2 resolution, int score, float time);
 
-    // la inceputul unui nou joc este folosit pentru a prelua din nou high score si a reseta flag-ul newHigh
+	// used at the start of a new game to reset the menu state and update the high score from the file
     void Reset();
 
     ~GameMenu();
@@ -36,12 +36,13 @@ private:
 
 protected:
     
-    // meniul este unic pentru joc deci el trebuie setat activ/inactiv in functie de nevoie
+	// the menu is unique for the game so it should be set active/inactive as needed
     bool active = false;
-    //  variabila bool ce stabileste daca a fost facut un nou record in runda tocmai incheiata
+
+	// variable that determines if a new high score was achieved in the round that just ended
     bool newHigh = false;
 
-    // la reset este preluata valorea din fisierul "score.txt"
+	// at reset, the high score is updated from "score.txt"
     int allTimehighscore = 0;
 
 

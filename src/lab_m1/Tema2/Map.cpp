@@ -22,7 +22,6 @@ Map::Map(int rows, int cols, float cellSize, glm::vec3 center, vector<string> me
     : N(rows), M(cols), gridMatrix(rows, vector<Tile>(cols)), stations(5)
 {
 
-    // seed pentru random
     static bool seeded = false;
     if (!seeded) {
         srand((unsigned int)time(nullptr));
@@ -32,7 +31,7 @@ Map::Map(int rows, int cols, float cellSize, glm::vec3 center, vector<string> me
     float startX = center.x - (cols * cellSize) / 2.0f;
     float startY = center.y - (rows * cellSize) / 2.0f;
 
-    // initierea cu grass
+	// initialize the map grid with grass
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < M; j++) {
 
@@ -52,7 +51,7 @@ Map::Map(int rows, int cols, float cellSize, glm::vec3 center, vector<string> me
         }
     }
 
-    // munti
+    // mountains
     int mountainPatches = 6 + rand() % 5;
     for (int k = 0; k < mountainPatches; k++) {
         int i = rand() % N;
@@ -60,7 +59,7 @@ Map::Map(int rows, int cols, float cellSize, glm::vec3 center, vector<string> me
         GenerateTerrain(i, j, 4 + rand() % 7, "mountain");
     }
 
-    // lac
+    // lakes
     int lakesPatches = 1 + rand() % 3;
     for (int k = 0; k < lakesPatches; k++) {
         int i = rand() % N;
@@ -74,13 +73,12 @@ Map::Map(int rows, int cols, float cellSize, glm::vec3 center, vector<string> me
     PlaceTrainStation(32, 33, 0);
     PlaceTrainStation(24, 49, 90);
 
-    // un rau
     GenerateRiver();
 
-    // sine
     CreateTrainPath();
 
     train = new Train();
+    // the initial train position 
     train->rail = getTileRail(3, 5);
     train->position = train->rail->start;
 
@@ -102,7 +100,7 @@ void Map::GenerateRiver()
             gridMatrix[i][j - 1].terrain.meshName = "water";
         }
 
-        // deviere stanga dreapta
+		// left - right randomised deviation
         int dir = rand() % 3 - 1;
         j = glm::clamp(j + dir, 1, M - 2);
     }
@@ -160,8 +158,8 @@ void Map::CreateTrainPath()
     CreateTrackLine(glm::vec2(25, 26), 0, 3);
     CreateTrackLine(glm::vec2(19, 16), 1, 11);
 
-    // tipuri 0, 2, 3, 4 colturi
-    // tipuri 1, 5 intersectii
+	// types 0, 2, 3, 4 are corners
+	// types 1, 5 are intersections
 
     CreateJunction(3, 2, 4);
     CreateJunction(3, 29, 1);
@@ -229,7 +227,7 @@ void Map::CreateTrackLine(glm::vec2 startIdx, int direction,  int length)
         curr->next = nullptr;
         curr->children.clear();
 
-        // conectare cu precedentul
+		// connecting with the previous for both ways movement
         if (prev) {
             prev->next = curr;
             curr->prev = prev;
@@ -398,7 +396,7 @@ void Map::PlaceTrainStation(int i, int j, float angle)
     stationsList.push_back(station);
     stations--;
 
-    // generare grass sub statie
+    // grass under the station
     GenerateTerrain(i, j, 6, "grass");
 }
 
@@ -436,12 +434,12 @@ void Map::MoveTrain(float deltaTime)
 
     train->progress += deltaTime * train->speed;
 
-    // folosit pentru ca vagoanele sa treaca la urmatorul rail
+	// used for wagons to move to the next rail
     bool next = false;
 
     if (train->progress >= 1.0f) {
 
-        // necesare pentru ca vagoanele sa urmareasca trenul
+        // needed so that the wagons follow the train
         next = true;
         train->rail->angle = train->angle;
         train->railHist.push_back(train->rail);
@@ -451,7 +449,7 @@ void Map::MoveTrain(float deltaTime)
 
         Rail* nextRail = nullptr;
 
-        // alegerea next initiala pe baza miscarii trenului
+		// initial next based on train direction (can be changed by junction)
         if (train->dir == FORWARD)
             nextRail = train->rail->next;
         else
@@ -459,7 +457,8 @@ void Map::MoveTrain(float deltaTime)
 
         if (nextRail) {
 
-            // salvarea ultimului rail inainte de intersectie pentru stabilirea orientarii butoanelor de control
+			// saving the last rail before junction for determining the orientation of the control buttons 
+            // (to know what W A S D means for the train in every case)
             if (nextRail->junction) {
                 lastRail = train->rail;
             }
@@ -479,7 +478,8 @@ void Map::MoveTrain(float deltaTime)
 
                 train->action = -1;
 
-                // logica de la viraje pentru a schimba corect in ambele sensuri (in colturi)
+                // the logic of turns for correctly changing direction in both ways(at corners)
+                
                 if (nextRail == lastRail) {
                     if (nextRail == train->rail->next) {
                         nextRail = train->rail->prev;
@@ -492,7 +492,7 @@ void Map::MoveTrain(float deltaTime)
                 glm::ivec2 curr = train->rail->idxs;
                 glm::ivec2 next = nextRail->idxs;
 
-                // determinarea unghiului pe care o sa l aiba trenul dupa intersectie
+                // determine the rotation of the train after the junction
                 if (train->angle == 0.0f || train->angle == 180.0f) {
 
                     if (curr.y > next.y) {
@@ -513,8 +513,7 @@ void Map::MoveTrain(float deltaTime)
                     }
                 }
                 
-
-                // stabilirea directiei de mers pe baza unghiului dupa modificare
+                // determine the direction (meaning advancing on next or prev) based on rotation angle
                 if (train->angle == 0.0f || train->angle == 90.0f) {
                     train->dir = FORWARD;
                 }
@@ -532,7 +531,7 @@ void Map::MoveTrain(float deltaTime)
         
     }
 
-    // interpolare pozitie pe baza directiei de mers
+	// interpolate position based on direction of movement
     if (train->dir == FORWARD)
         train->position = glm::mix(train->rail->start, train->rail->end, train->progress);
     else
@@ -545,7 +544,7 @@ void Map::MoveTrain(float deltaTime)
         Wagon& w = train->wagons[i];
         w.dir = train->railDirMap[w.rail];
 
-        // daca trenul a trecut la o urmatoare sectiune de sina si vagoanele trec
+		// if the train has moved to the next rail section the wagons are moving to it as well
         if (next) {
 
             int idx = train->railIndexMap[w.rail];
@@ -557,14 +556,14 @@ void Map::MoveTrain(float deltaTime)
             w.rail = train->railHist[nextIdx];
         }
 
-        // interpolare pozitie pe baza directiei de mers a vagonului (poate sa difere de cea a trenului cand e intr-un viraj/ intersectie)
+        // interpolate position based on direction of movement
         if (w.dir == FORWARD)
             w.position = glm::mix(w.rail->start, w.rail->end, train->progress);
         else
             w.position = glm::mix(w.rail->end, w.rail->start, train->progress);
     }
 
-    // se verifica daca s-a initiat o oprire in proximitatea unei statii
+    // checking if a stop was triggered in the proximity of a station
     CheckTrainStop();
 
 }
@@ -589,7 +588,7 @@ bool Map::IsTrainNearStation(Station* station)
 
 bool Map::EndGame()
 {
-    // apelarea de EndGame activeaza meniul daca jocul chiar s-a terminat
+    // calling EndGame() activates the endMenu if the game ended (based on the central station state)
     if (getCentralStation()->EndGame() && !endMenuTrigger) {
         endGameMenu.setActive();
         endMenuTrigger = true;
@@ -606,7 +605,7 @@ int Map::getScore()
 
 bool Map::EndMenuEnded()
 {
-    // apelam asta dupa ce trigger e activat
+    // calling this after trigger is true
     return !endGameMenu.IsActive();
 }
 
@@ -709,7 +708,7 @@ void Map::CheckTrainStop()
     for (Station* station : stationsList) {
 
         if (IsTrainNearStation(station) && (train->action == GLFW_KEY_DOWN || train->action == GLFW_KEY_S)) {
-            // flag-ul urmeaza sa fie setat la loc de false cand se termina oprirea de catre instanta de statie
+            // the flag will be set back to false when the stop is completed (by the station instance)
             train->stop = true;
             stationStopIdx = i;
             return;

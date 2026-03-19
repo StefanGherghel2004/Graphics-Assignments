@@ -37,7 +37,7 @@ void GameMenu::Render(TextRenderer* renderer, glm::ivec2 resolution, int score, 
 	int x = resolution.x;
 	int y = resolution.y;
 
-	//  se stabileste o valoarea a fontului pe baza marimii ecranului (in loc de folosirea unui factor de scalare)
+	// determine the font size based on the screen resolution (instead of using a scaling factor)
 	if (x < 400 || y < 225) {
 		fontSize = 12;
 	}

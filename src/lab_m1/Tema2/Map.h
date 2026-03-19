@@ -14,7 +14,7 @@ using namespace std;
 namespace trainMap
 {
 
-    // enum folosit pentru miscarea trenului (FORWARD -> se misca pe next, BACKWARD -> se misca pe prev)
+    // enum used for train movement (next or prev)
     enum TrainDir {
         FORWARD,
         BACKWARD
@@ -29,15 +29,15 @@ namespace trainMap
         bool junction = false;
         int type = -1;
 
-        //  in cazul intersectiilor contine cele 4 directii posibile
+        // in case of junctions containing all 4 directions
         std::vector<Rail*> children;
-        // indexul din grid-ul hartii (redundant pentru ca se afla si in Tile->terrain dar pentru acces din rail direct e folositor)
+        // index in the map grid
         glm::vec2 idxs;
 
         Rail* next = nullptr;
         Rail* prev = nullptr;
 
-        // folosit atunci cand trenul adauga sine in istoricul pentru vagoane (vagonul sa preia rotatia trenului cand a trecut pe acolo)
+        // used when adding rails in the history (so that the wagon has the same rotation as the train when passing)
         float angle = 0.0f;
     };
 
@@ -57,32 +57,32 @@ namespace trainMap
         glm::vec3 position;
 
         TrainDir dir = BACKWARD;
-        // folosit pentru a modela oprirea in statie (trenul nu se misca cat este true)
-        // setat true de catre instanta de Map si false la finalulo opririi de catre statie
+        // used for handling the train stop (the train does not move when true)
+        // set true by Map instance and false (after some time) by the station
         bool stop = false;
 
-        // folosit pentru afisarea timpului total de joc
+        // total game time
         float time = 0.0f;
 
-        // comenzi livrate complet
+        // completed orders (score)
         int completed = 0;
 
-        // se pune tasta apasata
+        // last key pressed for an action (cleared after every junction automatically)
         int action = -1;
 
-        // vectorul ce se compara cu comanda din gara centrala
+        // compared with the order from the central station (for delivering the order)
         std::vector<int> cargo;
-        // vagoanele efective ce contin informatii pentru randare
+        // wagons that contain information for rendering
         std::vector<Wagon> wagons;
 
-        // folosite pentru gestionarea miscariiv vagoanelor
+        // handling wagon movement
         std::vector<Rail*> railHist;
         std::unordered_map<Rail*, int> railIndexMap;
         std::unordered_map<Rail*, TrainDir> railDirMap;
 
     };
 
-    // o patratica de pe harta
+    // tile on the grid map
     struct Tile
     {
         InteractObj terrain;
@@ -97,7 +97,7 @@ namespace trainMap
         Map();
         Map(int rows, int cols, float size, glm::vec3 center, vector<string> meshName);
 
-        // metode utilizate pentru generarea hartii
+        // used for generating the map
         void GenerateRiver();
         void GenerateTerrain(int centerI, int centerJ, int radius, string mesh);
         void CreateTrainPath();
@@ -110,16 +110,16 @@ namespace trainMap
         Train* getTrain();
         Rail* getTileRail(int i, int j);
 
-        // determina urmatorul segment de sina pe baza tastei apasate si a rotatiei trenului
+        // determine next rail segment based on key pressed and train rotation angle
         Rail* NextRailAction();
 
-        // intersectii in care poti schimba directia (nu colturi) 
+        // junction that accept an action to change direction (not corners)
         bool IsRealJunction(int type);
 
-        // verifica daca trenul s-a oprit in proximitatea unei statii si actualizeaza id-ul pentru statie
+        // checking if the train is in the proximity of a station 
         void CheckTrainStop();
 
-        // metoda apelata la fiecare frame pentru miscarea automata a trenului
+        // called every frame for automatic movement of train
         void MoveTrain(float deltaTime);
 
         ~Map();
@@ -127,18 +127,18 @@ namespace trainMap
         void UpdateKeyPressed(int key);
         bool IsTrainNearStation(Station* station);
 
-        // daca comanda a expirat => endgame
+        // if the order time expired => endgame
         bool EndGame();
 
-        // numarul de comenzi completate in runda curenta
+        // number of completed orders in current round/game
         int getScore();
 
         bool EndMenuEnded();
 
-        // timpul total in runda de joc curenta
+        // total time
         float getTime();
 
-        // timpul ramas pana cand expira comanda actuala
+        // time until order deadline
         float getRemainingTime();
 
         int N;
@@ -161,20 +161,20 @@ namespace trainMap
         Train* train;
         Rail* lastRail = nullptr;
 
-        // meniul de final unic al jocului
         static GameMenu endGameMenu;
 
         bool endMenuTrigger = false;
 
         int stations;
 
-        // folosit pentru generarea de statii de produse in mod aleator in cele 4 pozitii prestabilite
+        //sed to randomly generate product stations in the four predefined positions
         std::vector<int> remainingIndices = { 1, 2, 3, 4 };
 
-        // index pentru selectarea statiei la care s-a facut oprirea pentru apelarea metodei ce se ocupa de aceasta
+        // index used to determine the station where the stop occurred,
+        // in order to call the method for that station
         int stationStopIdx = -1;
 
-        // raza in jurul statiei pentru oprire
+        // radius around the station for stopping
         float stopRadius = 15.0f;
 
     };

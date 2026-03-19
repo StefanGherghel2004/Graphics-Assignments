@@ -15,15 +15,14 @@ Station::Station(glm::vec2 position, bool central, string mesh, float angle)
 
         order.resize(5, -1);
         GenerateOrder();
-
-        // 60 de secunde initial pentru o comanda
+        // 60 seconds for an order
         interval = 60.0f;
        
-        // momentan nu e utilizat pentru statia centrala
+        // not used for central station
         inStationInterval = 2.0f;
     }
     else {
-        // la 5 secunde este disponibil simbolul din nou si stationeaza 1 secunda
+        // 5 seconds for station recharge and 1 second for a stop 
         interval = 5.0f;
         inStationInterval = 1.0f;
     }
@@ -37,7 +36,7 @@ Station::~Station()
 
 void Station::UpdateStation(float time)
 {
-    // daca e statie centrala nu creeaza resurse
+    // central station doesn' t produce symbols
     if (centralStation) {
         HandleOrders(time);
         return;
@@ -47,7 +46,7 @@ void Station::UpdateStation(float time)
 
     if (timer >= interval) {
         timer -= interval;
-        // are disponibil simbolul ei
+        // symbol available
         counter = 1;
     }
 }
@@ -76,7 +75,7 @@ float Station::getAlertFactor()
 
 void Station::GenerateOrder()
 {
-    // timpul se reseteaza la generarea unei noi comenzi
+    // reset timer for a new order
     timer = 0;
     for (int i = 0; i < 5; i++) {
         order[i] = rand() % 4 + 1;
@@ -86,12 +85,13 @@ void Station::GenerateOrder()
 
 void Station::HandleTrainStop(trainMap::Train* train, float time)
 {
-    // logica pentru gara producatoare
+
+    // producer station logic
     if (!centralStation) {
 
-        // se opreste doar un cadru practic in cazul asta (resursa nu e disponibila)
+        // stopping for a frame (the symbol is not available)
         if (counter < 1) {
-            // trenul poate sa porneasca la drum din nou
+            // the train can move 
             train->stop = false;
             train->action = -1;
             return;
@@ -100,9 +100,9 @@ void Station::HandleTrainStop(trainMap::Train* train, float time)
         int cargoCnt = std::count(train->cargo.begin(), train->cargo.end(), cargoType);
         int orderCnt = std::count(order.begin(), order.end(), cargoType);
 
-        // nu lasam trenul sa preia o resursa de care nu are nevoie gara centrala
+        // do not allow the train to pick up a symbol that the central station doesn't need
         if (cargoCnt + 1 > orderCnt) {
-            // trenul poate sa porneasca la drum din nou
+            // the train can move 
             train->stop = false;
             train->action = -1;
             return;
@@ -110,12 +110,12 @@ void Station::HandleTrainStop(trainMap::Train* train, float time)
 
         inStationtimer += time;
 
-        // finalizarea stationarii => primim resursa, adaugam noul vagon
+        // stop time reached => the train has the symbol, adding the new wagon
         if (inStationtimer > inStationInterval) {
             counter = 0;
             timer = 0.0f;
             inStationtimer -= inStationInterval;
-            // trenul poate sa porneasca la drum din nou
+            // the train can move
             train->stop = false;
             train->action = -1;
             train->cargo.push_back(cargoType);
@@ -131,7 +131,7 @@ void Station::HandleTrainStop(trainMap::Train* train, float time)
             if (idx < 0)
                 idx = 0;
 
-            // pe baza unghiului stabilim pozitia de inceput (miscarea e gestionata de metoda moveTrain())
+            // choosing the start position based on angle (the movement is handled by moveTrain())
             newWagon.rail = train->railHist[idx];
             if (newWagon.rail->angle == 0 || newWagon.rail->angle == 90) {
                 newWagon.position = newWagon.rail->start;
@@ -145,11 +145,12 @@ void Station::HandleTrainStop(trainMap::Train* train, float time)
         }
     }
     else {
-        // momentan nu opreste in gara centrala (un timp vizibil)
+       
+        // the train can leave instantly
         train->stop = false;
         train->action = -1;
 
-        // gestionam eliminarea simbolurilor din comanda care au fost aduse
+        // handling removal of symbols from the order that have already been delivered
         for (int i = 0; i < train->cargo.size(); ) {
 
             bool removed = false;
@@ -157,7 +158,7 @@ void Station::HandleTrainStop(trainMap::Train* train, float time)
             for (int j = 0; j < order.size(); j++) {
 
                 if (train->cargo[i] == order[j]) {
-                    // un element lipsa este inlocuit cu -1
+                    // delivered symbol => -1  (empty rendering)
                     order[j] = -1;
                     train->cargo.erase(train->cargo.begin() + i);
                     train->wagons.erase(train->wagons.begin() + i);
@@ -171,7 +172,7 @@ void Station::HandleTrainStop(trainMap::Train* train, float time)
             }
         }
 
-        // daca comanda a fost completata actualizam comenzile completate si timpul pentru comanda scade cu 1 secunda
+        // completed order => update the completed orders and reduce the order time by 1 second.
         if (CheckOrderDone()) {
             train->completed++;
             interval -= 1.0f;

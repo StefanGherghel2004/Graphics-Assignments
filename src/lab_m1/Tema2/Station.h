@@ -20,16 +20,16 @@ public:
 
     ~Station ();
 
-    // metoda apelata la fiecare cadru pentru actualizarea statiilor
+    // called every frame to update station state
     void UpdateStation(float time);
 
-    // apelata de UpdateStation() daca statia este centrala
+    // called by UpdateStation() if central station
     void HandleOrders(float time);
 
-    // factor folosit pentru modificarea culorii in shader a garii centrale cu cat ramane mai putin timp de facut comanda
+    // factor used for rendering the central station in shader (less time remaining => redder)
     float getAlertFactor();
 
-    // generarea unei comenzi cu simboluri 5 simboluri aleatorii din cele 4 disponibile
+    // generate random order (5 symbols with 4 unique avalaible)
     void GenerateOrder();
 
     void HandleTrainStop(trainMap::Train* train, float time);
@@ -43,10 +43,8 @@ public:
 
     bool EndGame();
 
-    // returneaza mesh-ul pentru randare obisnuita sau cel pentru minimap
     string getMesh(bool miniMap = false);
 
-    // verifica daca am completat comanda
     bool CheckOrderDone();
 
     float getInterval() { return interval; };
@@ -58,12 +56,13 @@ private:
 protected:
     glm::vec2 centerPosition;
 
-    // actualizat la fiecare cadru pentru ambele tipuri de gara
+    // updated every frame
     float timer = 0.0f;
-    // folosit pentru regenerare de resurse la o gara normala si pentru limita de asteptare la o comanda pentru gara centrala
+
+    // used for resource regeneration at a normal station and for the wait limit on an order at the central station
     float interval;
 
-    // folosit doar de catre gara de materiale pentru a determina daca are sau nu disponibil simbolul (practic un bool)
+    // used by producer station to determine whether the symbol is available or not
     int counter = 0;
 
     bool centralStation;
@@ -73,17 +72,17 @@ protected:
 
     float angle;
 
-    // variabile folosite pentru gestionarea opririlor in statie
+    // handling stop in station
     float inStationtimer = 0.0f;
     float inStationInterval;
 
-    // 1, 2,3, 4 corespunzator celor 4 simboluri
+    // the 4 avalaible symnbols
     float cargoType;
 
-    // folosit doar de statia centrala
+    // used by central station
     bool endGame = false;
 
-    // variabila statica de comanda folosita doar de statia centrala
+    // used by central station
     static std::vector<int> order;
 
 };

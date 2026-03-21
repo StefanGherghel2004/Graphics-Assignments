@@ -38,10 +38,9 @@ namespace m1
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
 
-        // actualizarea pozitiei camerei care urmareste trenul
+		// called every frame for the camera to follow the train
         void UpdateNormalCameraBehindTrain();
 
-        // functii de randat
         void RenderMap(bool miniMap);
         void RenderGameUI();
         void RenderStations(bool miniMap);
@@ -52,25 +51,25 @@ namespace m1
     protected:
         Tema2Camera::Camera* camera;
 
-        // cele 3 tipuri de camera folosita
+        // the 3 cameras used
         Tema2Camera::Camera* miniCamera;
         Tema2Camera::Camera* normalCamera;
         Tema2Camera::Camera* endGameCamera;
 
         Map gameMap;
-
-        // mapare intre un simbol si inaltimea la care este reprezentat (garile avand inaltimi diferite)
+        
+		// map between a symbol and the height at which it is represented (the stations having different heights)
         std::map<string, float> symbolHeight = { {"symbol1", 14.0f}, {"symbol2", 19.0f}, {"symbol3", 19.0f}, {"symbol4", 23.0f} };
         vector<string> tileMeshes = { "grass", "water", "mountain" };
 
         glm::mat4 projectionMatrix;
         TextRenderer* textRenderer;
 
-        // folosite pentru intoarcerile camerei la 90 de grade
+		// used for smoothing the camera movement when the train turns
         bool firstCameraUpdate = true;
         float smoothCameraAngle = 0.0f;
 
-        //  scale utilizat pentru modificarea marimii minimap-uloui
+		// scale used for changing the size of the minimap (using keys)
         float miniScale = 1.0f;
 
         bool gameMenu = false;

@@ -48,7 +48,7 @@ void Tema2::Init()
 
     // shader dupa culoarea varfurilor (trebuie schimbat numele)
     {
-        Shader* shader = new Shader("NormalShader");
+        Shader* shader = new Shader("MyShader");
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "Tema2", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "Tema2", "shaders", "FragmentShader.glsl"), GL_FRAGMENT_SHADER);
         shader->CreateAndLink();
@@ -318,7 +318,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
 
         glm::mat4 wagonTransform = glm::translate(glm::mat4(1.0f), w.position) * glm::rotate(glm::mat4(1.0f), RADIANS(w.rail->angle), glm::vec3(0, 1, 0));
 
-        RenderMesh(meshes["train_car" + std::to_string(train->cargo[i])], shaders["NormalShader"], wagonTransform);
+        RenderMesh(meshes["train_car" + std::to_string(train->cargo[i])], shaders["MyShader"], wagonTransform);
 
         // rotile vagoanelor
         for (int i = 0; i < 2; i++) {
@@ -705,7 +705,7 @@ void Tema2::RenderStations(bool miniMap)
             float alertFactor = station->getAlertFactor();
 
             // stabilirea valorii uniformei din shader 
-            Shader* normalShader = shaders["NormalShader"];
+            Shader* normalShader = shaders["MyShader"];
             glUseProgram(normalShader->program);
             int loc_alert = glGetUniformLocation(normalShader->program, "alertFactor");
             glUniform1f(loc_alert, alertFactor);
@@ -765,7 +765,7 @@ void Tema2::RenderStations(bool miniMap)
                 rot = glm::translate(glm::mat4(1), glm::vec3(0, 30, 0)) * rot;
             }
 
-            RenderMesh(meshes[station->getMesh(miniMap)], shaders["NormalShader"], glm::translate(glm::mat4(1), glm::vec3(pos.x, 0, pos.y)) * rot);
+            RenderMesh(meshes[station->getMesh(miniMap)], shaders["MyShader"], glm::translate(glm::mat4(1), glm::vec3(pos.x, 0, pos.y)) * rot);
 
 
             if (!miniMap) {

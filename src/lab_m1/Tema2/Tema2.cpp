@@ -46,7 +46,7 @@ void Tema2::Init()
     projectionMatrix = glm::perspective(RADIANS(80), window->props.aspectRatio, 0.01f, 200.0f);
 
 
-    // shader dupa culoarea varfurilor (trebuie schimbat numele)
+	// shader that implements the alert factor for central station
     {
         Shader* shader = new Shader("MyShader");
         shader->AddShader(PATH_JOIN(window->props.selfDir, SOURCE_PATH::M1, "Tema2", "shaders", "VertexShader.glsl"), GL_VERTEX_SHADER);
@@ -55,9 +55,7 @@ void Tema2::Init()
         shaders[shader->GetName()] = shader;
     }
 
-
-    
-    // vagoanele pentru cele 4 simboluri
+    // wagons representing the 4 symbols
     Mesh* train_car1 = mesh::CreateBox("train_car1", glm::vec3(0, 3.0f, 0), 3, 3.4, 3.5, GREEN07, 0.4f);
     AddMeshToList(train_car1);
     Mesh* train_car2 = mesh::CreateBox("train_car2", glm::vec3(0, 3.0f, 0), 3, 3.4, 3.5, ORANGE2, 0.75f);
@@ -67,19 +65,17 @@ void Tema2::Init()
     Mesh* train_car4 = mesh::CreateBox("train_car4", glm::vec3(0, 3.0f, 0), 3, 3.4, 3.5, BLUE08, 0.75f);
     AddMeshToList(train_car4);
 
-    // componentele trenului
+    // building the train mesh
     Mesh* cil = mesh::CreateCylinder("cil", glm::vec3(0, 0, 0), 1.2f, 5, RED, 0.85, true);
     Mesh* box = mesh::CreateBox("box", glm::vec3(0, 0.3f, -3.75f), 3, 3, 2.5f, GREEN, 0.75f);
     Mesh* platform = mesh::CreateBox("platform", glm::vec3(0, -1.3, -1.25), 3, 0.2f, 7.5, YELLOW, 0.75f);
     
     Mesh* train = MergeMeshes(std::vector<Mesh*>{cil, box, platform}, "train");
     AddMeshToList(train);
-
-    // roti pentru tren / vagoane
     Mesh* wheel = mesh::CreateCylinder("wheel", glm::vec3(0, 0, 0), 0.4f, 3, RED, 0.75, false);
     AddMeshToList(wheel);
     
-    // sine si variantele lor pentru minimap
+    // tracks (including their miniMap variants)
     Mesh* grasstrack = mesh::CreateTrack("grasstrack", glm::vec3(0, 0.2, 0), 0.7f, 0.4f, 4, GREY_02, GREY_02, GREY_02, 0.6f, "grass");
     AddMeshToList(grasstrack);
     Mesh* mini_grasstrack = mesh::CreateBox("mini_grasstrack", glm::vec3(0, 0.2, 0), 2, 0.4f, 4, GREY_02, 0.6f);
@@ -93,39 +89,35 @@ void Tema2::Init()
     Mesh* mini_tunneltrack = mesh::CreateBox("mini_tunneltrack", glm::vec3(0, 0.2, 0), 2, 0.4f, 4, GREY_08, 0.6f);
     AddMeshToList(mini_tunneltrack);
 
-    // simboluri si statii in varianta de miniMap (simbolurile dar mai mari)
+	// stations and their miniMap counterparts
     Mesh* symbol1 = mesh::CreateSymbol("symbol1", glm::vec3(0, 0, 0), 10, GREEN02, 0.3, 1);
     AddMeshToList(symbol1);
     Mesh* station1 = mesh::CreateSymbol("mini_station1", glm::vec3(0, 0, 0), 20, GREEN02, 0.3, 1);
     AddMeshToList(station1);
-
     Mesh* symbol2 = mesh::CreateSymbol("symbol2", glm::vec3(0, 0, 0), 10, ORANGE2, 0.5, 2);
     AddMeshToList(symbol2);
     Mesh* station2 = mesh::CreateSymbol("mini_station2", glm::vec3(0, 0, 0), 20, ORANGE2, 0.5, 2);
     AddMeshToList(station2);
-
     Mesh* symbol3 = mesh::CreateSymbol("symbol3", glm::vec3(0, 0, 0), 10, RED, 0.5, 3);
     AddMeshToList(symbol3);
     Mesh* station3 = mesh::CreateSymbol("mini_station3", glm::vec3(0, 0, 0), 20, RED, 0.5, 3);
     AddMeshToList(station3);
-
     Mesh* symbol4 = mesh::CreateSymbol("symbol4", glm::vec3(0, 0, 0), 10, BLUE08, 0.3, 4);
     AddMeshToList(symbol4);
     Mesh* station4 = mesh::CreateSymbol("mini_station4", glm::vec3(0, 0, 0), 20, BLUE08, 0.3, 4);
     AddMeshToList(station4);
 
-    // mesh de tren pentru minimap
     Mesh* miniTrain = mesh::CreateBox("mini_train", glm::vec3(0, 50, 0), 8, 8, 8, RED, 0.8);
     AddMeshToList(miniTrain);
 
-    // setul de statii cu accentul de gold
+    // creating the 5 different stations set
     for (int i = 0; i < 5; i++) {
         Mesh* station = mesh::CreateTrainStation("station" + to_string(i), glm::vec3(0, 6, 0), 25, 12, 15, GREY_099, GREY_06, GOLD, 0.6f, i);
         AddMeshToList(station);
 
     }
 
-    // mesh-uri pentru teren
+    // used for the map tiles
     Mesh* mountain = mesh::Create4PPoly(
         "mountain",
         VertexFormat(glm::vec3(-2, 0, -2), BROWN),
@@ -163,7 +155,8 @@ void Tema2::Init()
 
 void Tema2::FrameStart()
 {
-    // in meniul de final fundalul este un negru total iar in joc un albastru foarte inchis
+
+	// black background for endgame menu and very dark blue for the main game
     if (gameMenu) {
         glClearColor(0, 0, 0, 1);
 
@@ -181,28 +174,28 @@ void Tema2::FrameStart()
 void Tema2::Update(float deltaTimeSeconds)
 {
 
-    // logica de endgame
+    // EndGame logic
     if (gameMap.EndGame()) {
         gameMenu = true;
 
-        // daca abia s-a intrat in endGame se schimba camera la cea de endGame
+		// if the player just entered the endGame, switch to the endGame camera
         if (camera != endGameCamera) {
             camera = endGameCamera;
             camera->Set(glm::vec3(0, 2, 10.0f), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
         }
 
-        // se randeaza meniul de endgame
+        // rendering end menu
         gameMap.getMenu()->Render(textRenderer, window->GetResolution(), gameMap.getScore(), gameMap.getTime());
         RenderTrain(true, false);
 
-        // cand jucatorul a apasat space ca sa continue cu un nou joc
+		// when the player pressed space to continue with a new game
         if (gameMap.EndMenuEnded()) {
-            gameMap.getMenu()->Reset(); // resetare meniu de final
+            gameMap.getMenu()->Reset(); // reset end menu
             gameMap = Map(50, 60, 4.0f, glm::vec3(0, 0, 0), tileMeshes);
             textRenderer->Load("assets/fonts/Hack-Bold.ttf", 24);
-            // se reseteaza la starea initiala de joc mai multe variabile
+            // reset variables for the new game
             miniScale = 1.0f;
-            firstCameraUpdate = true; // util deoarece altfel ar prelua rotatia in care a pierdut jucatorul la jocul anterior
+            firstCameraUpdate = true;
             camera = normalCamera;
             gameMenu = false;
             
@@ -210,10 +203,9 @@ void Tema2::Update(float deltaTimeSeconds)
         return;
     }
 
-    // camera care urmareste trenul
     UpdateNormalCameraBehindTrain();
 
-    // randarea scenei principale
+    // big scene render
     camera = normalCamera;
     RenderScene(deltaTimeSeconds, false);
 
@@ -230,17 +222,17 @@ void Tema2::Update(float deltaTimeSeconds)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDisable(GL_SCISSOR_TEST);
 
-    // proiectia pentru minimap
+    // projection for minimap
     projectionMatrix = glm::ortho(-128.0f, 125.0f, -108.0f, 110.0f, 0.1f, 120.0f);
     camera = miniCamera;
 
-    // randare cu minimap
+    // minimap render
     RenderScene(deltaTimeSeconds, true);
-    // proiectia pentru camera normala
+
+    // porjection for main scene
     projectionMatrix = glm::perspective(RADIANS(80), window->props.aspectRatio, 0.01f, 250.0f);
     camera = normalCamera;
 
-    // miscarea trenuloui si actualizarea statiilor
     gameMap.MoveTrain(deltaTimeSeconds);
     for (auto& station : gameMap.getStations()) {
         station->UpdateStation(deltaTimeSeconds);
@@ -259,7 +251,7 @@ void Tema2::RenderScene(float deltaTimeSeconds, bool miniMap)
 
     RenderStations(miniMap);
 
-    // scor, timp ramas, timp total
+	// UI => score time remaining, total time
     if (!miniMap) {
         RenderGameUI();
     }
@@ -290,7 +282,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
 
     glm::mat4 trainTransform = glm::translate(glm::mat4(1.0f), glm::vec3(trainPos.x, 2.8f, trainPos.y)) * glm::rotate(glm::mat4(1.0f), RADIANS(train->angle), glm::vec3(0, 1, 0));
     if (gameMenu) {
-        // in meniul de final locomotiva sta in origine
+		// centered train in the end menu
         trainTransform = glm::mat4(1);
     }
 
@@ -298,7 +290,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
     RenderMesh(meshes[mesh], shaders["VertexColor"], trainTransform);
 
 
-    // randarea rotilor locomotivei
+    // rendering wheels
     glm::mat4 wheelRot = glm::rotate(glm::mat4(1.0f), RADIANS(90.0f), glm::vec3(0, 1, 0));
 
     for (int i = 0; i < 6; i++) {
@@ -308,7 +300,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
         RenderMesh(meshes["wheel"], shaders["VertexColor"], wheelModel);
     }
 
-    // randare vagoane
+	// the wagons are not rendered in the end menu and minimap
     if (gameMenu || miniMap) {
         return;
     }
@@ -320,7 +312,6 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
 
         RenderMesh(meshes["train_car" + std::to_string(train->cargo[i])], shaders["MyShader"], wagonTransform);
 
-        // rotile vagoanelor
         for (int i = 0; i < 2; i++) {
             glm::mat4 wheelLoc = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.9f, - 1.25 + i * 2.5)) * wheelRot;
             glm::mat4 wheelModel = wagonTransform * wheelLoc;
@@ -454,12 +445,12 @@ Mesh* Tema2::CreateMesh(const char* name, const std::vector<VertexFormat>& verti
 void Tema2::OnInputUpdate(float deltaTime, int mods)
 {
 
-    // in camera de meniu de final putem doar sa rotim camera
+	// in the end game the camera can only be rotated, no movement allowed
     if (camera == endGameCamera) {
         return;
     }
 
-    // gestionare marime/micsorare minimap
+	// handling scaling of minimap with keys 1 and 2 (numpad or not)
     float scaleSpeed = 3.0f;
 
     if (window->KeyHold(GLFW_KEY_1) || window->KeyHold(GLFW_KEY_KP_1)) {
@@ -470,7 +461,7 @@ void Tema2::OnInputUpdate(float deltaTime, int mods)
         miniScale -= scaleSpeed * deltaTime;
     }
 
-    // clamp rezonabil
+    // limiting the scaling
     miniScale = glm::clamp(miniScale, 0.5f, 1.5f);
 
  
@@ -515,11 +506,10 @@ void Tema2::OnInputUpdate(float deltaTime, int mods)
 
 void Tema2::OnKeyPress(int key, int mods)
 {
-    
-    // actualizarea controloalelor pentru tren
+	// key pressed for turning/ interacting with the stations
     gameMap.UpdateKeyPressed(key);
    
-    // gestionarea iesirii din meniul de final
+	// handling coming back to the main menu from the end game menu with space key
     if (gameMap.getMenu()->IsActive()) {
 
         if (key == GLFW_KEY_SPACE) {
@@ -575,7 +565,7 @@ void Tema2::OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY)
 
 void Tema2::OnWindowResize(int width, int height)
 {
-    // ca sa poata scrie in continuare in chenarul corect
+	// needed to reinitialise the text renderer with the new resolution
     textRenderer = new TextRenderer(window->props.selfDir, window->props.resolution.x, window->props.resolution.y);
     textRenderer->Load("assets/fonts/Hack-Bold.ttf", 24);
 }
@@ -602,14 +592,14 @@ void Tema2::UpdateNormalCameraBehindTrain()
 
     float trainAngle = train->angle;
 
-    // la inceputul unui joc se stabileste prima valoare pentru unghiul smooth ca unghiul initial
+	// at the start of new game, set the first value for the smooth angle as the initial angle
     if (firstCameraUpdate) {
         smoothCameraAngle = trainAngle;
         firstCameraUpdate = false;
     }
 
     float time = GetLastFrameTime();
-    // vireaza 90 de grade in 0.5 secunde
+	// 90 degree in 0.5 seconds
     float maxTurnSpeed = 180.0f;
 
     float angleDiff = trainAngle - smoothCameraAngle;
@@ -622,7 +612,7 @@ void Tema2::UpdateNormalCameraBehindTrain()
         angleDiff += 360.0f;
     }
 
-    // clamp ca sa nu poata vira instant
+	// clamping the angle difference to prevent instant turns
     float maxDiff = maxTurnSpeed * time;
     angleDiff = glm::clamp(angleDiff, -maxDiff, maxDiff);
 
@@ -634,7 +624,7 @@ void Tema2::UpdateNormalCameraBehindTrain()
     glm::vec3 forward(sin(RADIANS(smoothCameraAngle)), lookDown, cos(RADIANS(smoothCameraAngle)));
     forward = glm::normalize(forward);
 
-    // se gestioneaza departarea camerei de locomotiva cu adaugarea fiecarui vagon
+	// handling the distance of the camera from the locomotive increasing with the addition of each wagon
     float distance = 12 + train->wagons.size() * 5.0f;
     float height = 5.0f;
 
@@ -666,7 +656,6 @@ void Tema2::RenderMap(bool miniMap)
 
             RenderRail(cell.meshName, modelMatrix, miniMap);
 
-            // intersectie
             if (gameMap.getTileRail(i, j)->junction) {
                 modelMatrix = modelMatrix * glm::rotate(glm::mat4(1), RADIANS(90.0f), glm::vec3(0, 1, 0));
                 RenderRail(cell.meshName, modelMatrix, miniMap);
@@ -701,10 +690,10 @@ void Tema2::RenderStations(bool miniMap)
 
         if (station->isCentralStation()) {
 
-            // statie centrala colorata in rosu in functie de timp
+			// alert factor = 0 => normal station color, alert factor = 1 => fully red station
             float alertFactor = station->getAlertFactor();
 
-            // stabilirea valorii uniformei din shader 
+			// using MyShaderr for the central station to implement the alert factor effect
             Shader* normalShader = shaders["MyShader"];
             glUseProgram(normalShader->program);
             int loc_alert = glGetUniformLocation(normalShader->program, "alertFactor");
@@ -713,10 +702,9 @@ void Tema2::RenderStations(bool miniMap)
             glm::mat4 scale = miniMap ? glm::scale(glm::mat4(1), glm::vec3(1.5, 1, 1.5)) : glm::mat4(1);
 
             RenderMesh(meshes[station->getMesh()], normalShader, glm::translate(glm::mat4(1), glm::vec3(pos.x, 0, pos.y)) * rot * scale);
-            // setare la 0 pentru ca restul mesh-urilor randate cu acest shader sa nu fie afectate
+			// set to 0 so that the rest of the meshes rendered with this shader are not affected
             glUniform1f(loc_alert, 0.0f);
 
-            // simbolurile comenzii
             auto& order = station->getOrder();
 
             for (int i = 0; i < order.size(); i++) {
@@ -735,7 +723,8 @@ void Tema2::RenderStations(bool miniMap)
 
                 glm::vec3 symbolPos(pos.x, heigth, 26 + pos.y - 14 * i);
 
-                // al treilea simbol (din 5) e la centru => facem ca simbolurile sa fie orientate fata de directia dintre simbolul din centru si tren
+				// 3rd symbol (out of 5) is in the center => make the symbols oriented towards
+                // the direction between the center symbol and the train
                 glm::vec3 centerSymbolPos(pos.x, heigth, 26 + pos.y - 14 * 2);
                 glm::vec2 trainPos2D = gameMap.getTrainPos();
                 glm::vec3 trainPos3D(trainPos2D.x, symbolPos.y, trainPos2D.y);
@@ -745,7 +734,7 @@ void Tema2::RenderStations(bool miniMap)
                 glm::mat4 trans;
 
                 if (miniMap) {
-                    // in cazul minimapului reprezint simbolurile din comanda mai departe de gara centrala (nu deasupra)
+					// in the minimap represent the symbols from the order further from the central station (not above)
                     trans = glm::translate(glm::mat4(1.0f), symbolPos - glm::vec3(20, 0, 0)) * glm::rotate(glm::mat4(1.0f), RADIANS(-90.0f), glm::vec3(1, 0, 0));
                 }
                 else {
@@ -756,11 +745,10 @@ void Tema2::RenderStations(bool miniMap)
             }
 
         }
-        // celelalte statii
         else {
 
             if (miniMap) {
-                // in cazul miniMap-ului rotim pe axa 0x simbolul ca sa sa fie in planul vizibil si o ridicam mai sus
+				// for the miniMap, rotate the symbol on the x axis so that it's in the visible plane and move it higher
                 rot = glm::rotate(glm::mat4(1), RADIANS(-90.0f), glm::vec3(1, 0, 0));
                 rot = glm::translate(glm::mat4(1), glm::vec3(0, 30, 0)) * rot;
             }
@@ -772,7 +760,7 @@ void Tema2::RenderStations(bool miniMap)
                 if (station->getCounter() >= 1) {
                     glm::vec3 symbolPos(pos.x, symbolHeight.at(station->getSymbolMesh()), pos.y);
 
-                    // ca mai sus simbolurile se orienteaza dupa pozitia trenului pe harta
+					// symbols oriented towards the train
                     glm::vec2 trainPos2D = gameMap.getTrainPos();
                     glm::vec3 trainPos3D(trainPos2D.x, symbolPos.y, trainPos2D.y);
                     glm::vec3 dir = glm::normalize(trainPos3D - symbolPos);

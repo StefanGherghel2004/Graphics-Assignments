@@ -70,7 +70,9 @@ void Tema2::Init()
     Mesh* box = mesh::CreateBox("box", glm::vec3(0, 0.3f, -3.75f), 3, 3, 2.5f, GREEN, 0.75f);
     Mesh* platform = mesh::CreateBox("platform", glm::vec3(0, -1.3, -1.25), 3, 0.2f, 7.5, YELLOW, 0.75f);
     
-    Mesh* train = MergeMeshes(std::vector<Mesh*>{cil, box, platform}, "train");
+	auto meshes = std::vector<Mesh*>{ cil, box, platform };
+
+    Mesh* train = MergeMeshes(meshes, "train");
     AddMeshToList(train);
     Mesh* wheel = mesh::CreateCylinder("wheel", glm::vec3(0, 0, 0), 0.4f, 3, RED, 0.75, false);
     AddMeshToList(wheel);
@@ -264,13 +266,13 @@ void Tema2::RenderRail(string mesh, glm::mat4 modelMatrix, bool miniMap)
     string type = miniMap ? "mini_" : "";
 
     if (mesh == "grass") {
-        RenderMesh(meshes[type + "grasstrack"], shaders["VertexColor"], modelMatrix);
+        RenderMesh(meshes[type + "grasstrack"], shaders["MyShader"], modelMatrix);
     }
     else if (mesh == "water") {
-        RenderMesh(meshes[type + "watertrack"], shaders["VertexColor"], modelMatrix);
+        RenderMesh(meshes[type + "watertrack"], shaders["MyShader"], modelMatrix);
     }
     else if (mesh == "mountain") {
-        RenderMesh(meshes[type + "tunneltrack"], shaders["VertexColor"], modelMatrix);
+        RenderMesh(meshes[type + "tunneltrack"], shaders["MyShader"], modelMatrix);
     }
 
 }
@@ -287,7 +289,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
     }
 
     string mesh = miniMap ? "mini_train" : "train";
-    RenderMesh(meshes[mesh], shaders["VertexColor"], trainTransform);
+    RenderMesh(meshes[mesh], shaders["MyShader"], trainTransform);
 
 
     // rendering wheels
@@ -297,7 +299,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
         glm::mat4 wheelLoc = glm::translate(glm::mat4(1.0f), glm::vec3(0, -1.8f, -4.0f + i * 1.0f)) * wheelRot;
         glm::mat4 wheelModel = trainTransform * wheelLoc;
 
-        RenderMesh(meshes["wheel"], shaders["VertexColor"], wheelModel);
+        RenderMesh(meshes["wheel"], shaders["MyShader"], wheelModel);
     }
 
 	// the wagons are not rendered in the end menu and minimap
@@ -316,7 +318,7 @@ void Tema2::RenderTrain(bool gameMenu, bool miniMap)
             glm::mat4 wheelLoc = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0.9f, - 1.25 + i * 2.5)) * wheelRot;
             glm::mat4 wheelModel = wagonTransform * wheelLoc;
 
-            RenderMesh(meshes["wheel"], shaders["VertexColor"], wheelModel);
+            RenderMesh(meshes["wheel"], shaders["MyShader"], wheelModel);
         }
    }
 
@@ -337,6 +339,15 @@ void Tema2::RenderMesh(Mesh* mesh, Shader* shader, const glm::mat4& modelMatrix)
 
     // Render an object using the specified shader and the specified position
     glUseProgram(shader->program);
+
+    glm::vec3 camPos = camera->position;
+    int loc_viewPos = glGetUniformLocation(shader->program, "viewPos");
+    glUniform3fv(loc_viewPos, 1, glm::value_ptr(camPos));
+
+    // dummy lightpos
+    glm::vec3 lightPos(0, 30, 0);
+    int loc_lightPos = glGetUniformLocation(shader->program, "lightPos");
+    glUniform3fv(loc_lightPos, 1, glm::value_ptr(lightPos));
 
     // TODO(student): Get shader location for uniform mat4 "Model"
     int loc_model = glGetUniformLocation(shader->program, "Model");
@@ -644,7 +655,7 @@ void Tema2::RenderMap(bool miniMap)
             glm::mat4 modelMatrix = glm::mat4(1);
             modelMatrix = glm::translate(modelMatrix, glm::vec3(cell.position.x, 0, cell.position.y));
 
-            RenderMesh(meshes[cell.meshName], shaders["VertexColor"], modelMatrix);
+            RenderMesh(meshes[cell.meshName], shaders["MyShader"], modelMatrix);
 
             if (gameMap.getTileRail(i, j) == nullptr) {
                 continue;
@@ -741,7 +752,7 @@ void Tema2::RenderStations(bool miniMap)
                     trans = glm::translate(glm::mat4(1.0f), symbolPos) * glm::rotate(glm::mat4(1.0f), angleY, glm::vec3(0, 1, 0));
                 }
 
-                RenderMesh(meshes["symbol" + std::to_string(order[i])], shaders["VertexColor"], trans);
+                RenderMesh(meshes["symbol" + std::to_string(order[i])], shaders["MyShaderColor"], trans);
             }
 
         }
@@ -768,7 +779,7 @@ void Tema2::RenderStations(bool miniMap)
 
                     glm::mat4 trans = glm::translate(glm::mat4(1.0f), symbolPos) * glm::rotate(glm::mat4(1.0f), angleY, glm::vec3(0, 1, 0));
 
-                    RenderMesh(meshes[station->getSymbolMesh()], shaders["VertexColor"], trans);
+                    RenderMesh(meshes[station->getSymbolMesh()], shaders["MyShader"], trans);
                 }
             }
 

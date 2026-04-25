@@ -215,7 +215,9 @@ Mesh* mesh::CreateEngine(
 
     fire->InitFromData(vertices, indices);
 
-    return MergeMeshes(std::vector<Mesh*>{squareBlock, fire}, name);
+    auto meshes = std::vector<Mesh*>{ squareBlock, fire };
+
+    return MergeMeshes(meshes, name);
 }
 
 Mesh* mesh::CreateCannon(
@@ -235,7 +237,9 @@ Mesh* mesh::CreateCannon(
     Mesh* barrel = CreateRectangle(name, barrelCorner, 0.8 * length, 2.5 * length, barrelCol, true);
     Mesh* halfCircle = CreateEllipsoide(name, circleCenter, length / 2, length / 2, circleCol, 0.8, true);
 
-    return MergeMeshes(std::vector<Mesh*>{halfSquare, barrel, halfCircle}, name);
+	auto meshes = std::vector<Mesh*>{ halfSquare, barrel, halfCircle };
+
+    return MergeMeshes(meshes, name);
 }
 
 Mesh* mesh::CreateBumper(
@@ -252,7 +256,10 @@ Mesh* mesh::CreateBumper(
     Mesh* square = CreateSquare(name, corner, length, baseCol, true);
     Mesh* halfEllipse = CreateEllipsoide(name, center, 1.5 * length, length, circleCol, 0.8, true);
 
-    return MergeMeshes(std::vector<Mesh*>{square, halfEllipse}, name);
+
+	auto meshes = std::vector<Mesh*>{ square, halfEllipse };
+
+    return MergeMeshes(meshes, name);
 }
 
 Mesh* mesh::CreateHeart(const std::string& name, glm::vec3 center, float length, glm::vec3 color)
@@ -497,7 +504,10 @@ Mesh* mesh::CreateChickenHead(const std::string& name, glm::vec3 center, float r
     Mesh* comb2Mesh = CreateTriangle(name, center + glm::vec3(-radius / 3, 0.8 * radius, 1), glm::vec3(radius / 3, 0.8 * radius, 1), glm::vec3(radius / 1.5, 1.6 * radius, 1), combCol);
 
     Mesh* beakMesh = CreateTriangle(name, center + glm::vec3(0, 0, 1), center + glm::vec3(-radius / 5, -radius / 3, 1), center + glm::vec3(0.35 * radius, -0.6 * radius, 1), beakCol);
-    return MergeMeshes(std::vector<Mesh*>{ baseMesh, eye1Mesh, eye2Mesh, comb1Mesh, comb2Mesh, beakMesh}, name);
+    
+	auto meshes = std::vector<Mesh*>{ baseMesh, eye1Mesh, eye2Mesh, comb1Mesh, comb2Mesh, beakMesh };
+    
+    return MergeMeshes(meshes, name);
 }
 
 
@@ -512,7 +522,9 @@ Mesh* mesh::CreateExplosion(const std::string& name, glm::vec3 center, float rad
     Mesh* mesh1 = CreateStar(name, center, radius, color1);
     Mesh* mesh2 = CreateStar(name, center + glm::vec3(0, 0, 1), radius, color2, -glm::pi<float>() / 2);
 
-    return MergeMeshes(std::vector<Mesh*>{mesh1, mesh2}, name);
+	auto meshes = std::vector<Mesh*>{ mesh1, mesh2 };
+
+    return MergeMeshes(meshes, name);
 }
 
 Mesh* mesh::CreateStar(
@@ -620,7 +632,9 @@ Mesh* mesh::CreateChickenLeg(const std::string& name, glm::vec3 p1, glm::vec3 p2
 
     Mesh *mesh2 = CreateRectangle(name, p1 + glm::vec3(0, - dist/ 6, 0), dist / 2.7, dist / 2, color, true);
 
-    return MergeMeshes(std::vector<Mesh*>{mesh1, mesh2}, name);
+	auto meshes = std::vector<Mesh*>{ mesh1, mesh2 };
+
+    return MergeMeshes(meshes, name);
 }
 
 

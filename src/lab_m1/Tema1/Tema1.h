@@ -5,6 +5,7 @@
 #include "lab_m1/Tema1/Grid.h"
 #include "lab_m1/Tema1/ChickenInvadersGame.h"
 #include <components/text_renderer.h>
+#include <SFML/Audio.hpp>
 
 using namespace mesh;
 using namespace grid;
@@ -156,6 +157,9 @@ namespace m1
         // handling statistics 
         int currentSessionHighScore = 0;
         int allTimeHighScore = 0;
+
+        sf::Music backgroundMusic;
+
         
     };
 }   // namespace m1

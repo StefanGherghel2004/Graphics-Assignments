@@ -221,6 +221,14 @@ void Tema1::Init()
     }
     fin.close();
 
+    // music logic
+    std::string path = PATH_JOIN(window->props.selfDir, "assets", "music", "music.wav");
+
+    backgroundMusic.openFromFile(path);
+    backgroundMusic.setLooping(true);
+    backgroundMusic.setVolume(50);
+    backgroundMusic.play();
+
 
 }
 

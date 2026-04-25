@@ -17,13 +17,17 @@ uniform mat4 Projection;
 // TODO(student): Output values to fragment shader
 out vec3 frag_color;
 out vec3 normal;
+out vec3 frag_pos;
 
 void main()
 {
 
     frag_color = v_color;
-    normal = v_normal;
-    // TODO(student): Compute gl_Position
-    gl_Position = Projection * View * Model * vec4(v_position,  1);
+
+    frag_pos = vec3(Model * vec4(v_position, 1.0));
+
+    normal = normalize(mat3(transpose(inverse(Model))) * v_normal);
+
+    gl_Position = Projection * View * Model * vec4(v_position, 1.0);
 
 }
